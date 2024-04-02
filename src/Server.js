@@ -1,3 +1,4 @@
+const { info } = require('console')
 const express = require('express')
 const app = express()
 const http = require('http').Server(app)
@@ -11,8 +12,17 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 })
 
+
+let container = [
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+];
+// let novoJogo = ''
+
 let jogadores = ''
 let usuariosConectados = []
+let usuariosAutorizados = []
 
 // Evento de conexão de um cliente
 io.on('connection', (socket) => {
@@ -33,13 +43,94 @@ io.on('connection', (socket) => {
   // Envia para todos os clientes a lista de usuários conectados
   io.emit('listaUsuarios',usuariosConectados)
 
+  function verificarCampeao(element) {
+    let vencedor = ''
+    if (
+      element[0][0] != '' &&
+      element[0][0] == element[0][1] &&
+      element[0][1] == element[0][2]
+    ) {
+      vencedor = element[0][0];
+    } else if (
+      element[1][0] &&
+      element[1][0] == element[1][1] &&
+      element[1][1] == element[1][2]
+    ) {
+      vencedor = element[1][0];
+    } else if (
+      element[2][0] &&
+      element[2][0] == element[2][1] &&
+      element[2][1] == element[2][2]
+    ) {
+      vencedor = element[2][0];
+    } else if (
+      element[0][0] &&
+      element[0][0] == element[1][0] &&
+      element[1][0] == element[2][0]
+    ) {
+      vencedor = element[0][0];
+    } else if (
+      element[0][1] &&
+      element[0][1] == element[1][1] &&
+      element[1][1] == element[2][1]
+    ) {
+      vencedor = element[0][1];
+    } else if (
+      element[0][2] &&
+      element[0][2] == element[1][2] &&
+      element[1][2] == element[2][2]
+    ) {
+      vencedor = element[0][2];
+    } else if (
+      element[0][0] &&
+      element[0][0] == element[1][1] &&
+      element[1][1] == element[2][2]
+    ) {
+      vencedor = element[0][0];
+    } else if (
+      element[0][2] &&
+      element[0][2] == element[1][1] &&
+      element[1][1] == element[2][0]
+    ) {
+      vencedor = element[0][2];
+    }
+    return vencedor
+  }
+
+  socket.on('iniciou', (inicio) => {
+    if(inicio == true) {
+      autorizacao = []
+      container = [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
+      ];
+    }
+  })
 
   // Recebe jogadores
-  socket.on('jogadores', (date) => {
-    console.log("jogadores do servidor")
+  socket.on('jogadores', (date, inicio) => {
     jogadores = date
-    console.log(date)
+    if(inicio == 'iniciou') {
+      container = [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
+      ];
+      
+    }
   })
+
+
+  socket.on('jogador',(info) => {
+    usuariosAutorizados.push(info)
+    if (usuariosAutorizados[0] === usuariosAutorizados[1]) {
+      io.emit('jogador', 'autorizado')
+      console.log(usuariosAutorizados)
+      usuariosAutorizados = []
+    }
+  })
+
 
   // Captura cada jogada
   socket.on("jogada", (jg) => {
@@ -51,8 +142,18 @@ io.on('connection', (socket) => {
       jg.jogador = jogadores.jogador1.nome
       jg.letra = jogadores.jogador1.letra
     }
-    console.log(jg)
-    io.emit("jogada", jg);
+
+    const separadorColuna = jg.posicao.split(".");
+    const linha = separadorColuna[0];
+    const coluna = separadorColuna[1];
+
+    container[linha][coluna] = jg.letra
+
+    verificarCampeao(container)
+    let vencedor = verificarCampeao(container)
+
+    console.table(container)
+    io.emit("jogada", jg, container, vencedor);
   });
 
   // Captura e envia nome do jogador

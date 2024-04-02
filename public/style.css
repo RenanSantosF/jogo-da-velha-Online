@@ -14,3 +14,11 @@
   justify-content: center;
   align-items: center;
 }
+
+.enable {
+  pointer-events: auto;
+}
+
+.active {
+  display: flex;
+}
