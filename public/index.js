@@ -1,22 +1,23 @@
 var socket = io();
 
 //  Inicia variáveis
-const tabuleiro = document.getElementById("container");
-const tabela = document.querySelectorAll("#container span");
-const seuNomeInput = document.getElementById("player1");
-const nomeOponenteInput = document.getElementById("player2");
+const inputSeuNome = document.getElementById("player1");
+const botaoConfirmaNome = document.getElementById("confirmarNome");
+const inputNomeOponente = document.getElementById("player2");
 const BotaoStart = document.getElementById("start");
-const casaInput = document.querySelectorAll(".pointer");
-const BotaoconfirmarNome = document.getElementById("confirmarNome");
-const venceu = document.getElementById("venceu");
-const spanVez = document.getElementById("turnPlayer");
-const novoJogo = document.getElementById("novoJogo");
-const vez = document.getElementById("vez");
-const aguardo = document.getElementById("aguardo");
+const containerTabuleiro = document.getElementById("container");
+const spanTabuleiro = document.querySelectorAll("#container span");
+const spanMsgVencedor = document.getElementById("venceu");
+const spanJogadorVez = document.getElementById("turnPlayer");
+const BotaoNovoJogo = document.getElementById("novoJogo");
+const ContainerMsgVencedor = document.getElementById("vez");
+const spanMsgAguardarJogador = document.getElementById("aguardo");
+let iniciouJogo = false;
+let autorizacao = "";
 
-let container = "";
+let statusContainerTabuleiro = "";
 
-let jogadores = {
+let listaJogadores = {
   jogador1: {
     nome: "",
     id: "",
@@ -30,107 +31,98 @@ let jogadores = {
 };
 
 socket.on("listaUsuarios", (lista) => {
-  jogadores.jogador1.id = lista[0];
-  jogadores.jogador2.id = lista[1];
+  listaJogadores.jogador1.id = lista[0];
+  listaJogadores.jogador2.id = lista[1];
 });
 
 // Informa Id do jogador atual
 let meuId = {
-  nome: seuNomeInput.textContent,
+  nome: inputSeuNome.textContent,
   id: "",
 };
 
 socket.on("seuId", (id) => {
   meuId.id = id;
-
-  tabela.forEach(item => {
-    item.classList.add(`${meuId.id}`)
-  });
 });
 
 // Recebe informação do jogador contra
 let nomeOponente = "";
 socket.on("player", (play) => {
-  nomeOponenteInput.value = play;
+  inputNomeOponente.value = play;
   nomeOponente = play;
 });
 
 // Clique Confirmar o nome
 let seuNome = "";
-BotaoconfirmarNome.addEventListener("click", () => {
-  socket.emit("player", seuNomeInput.value);
-  seuNome = seuNomeInput.value;
-  BotaoconfirmarNome.style.display = "none";
+botaoConfirmaNome.addEventListener("click", () => {
+  socket.emit("player", inputSeuNome.value);
+  seuNome = inputSeuNome.value;
+  botaoConfirmaNome.style.display = "none";
 });
 
-let autorizacao = "";
 socket.on("jogador", (inf) => {
   autorizacao = inf;
 
   if (autorizacao == "autorizado") {
-    tabuleiro.style.display = "grid";
+    containerTabuleiro.style.display = "grid";
     autorizacao = "";
   }
 });
 
-
-
 function defineNomeParaCadaId() {
-  if (jogadores.jogador1.id === meuId.id) {
-    jogadores.jogador1.nome = seuNomeInput.value;
-    jogadores.jogador2.nome = nomeOponente;
-
-    socket.emit("jogador", "autorizado");
-  } else if (jogadores.jogador2.id === meuId.id) {
-    jogadores.jogador2.nome = seuNomeInput.value;
-    jogadores.jogador1.nome = nomeOponente;
-
-    socket.emit("jogador", "autorizado");
+  if (listaJogadores.jogador1.id === meuId.id) {
+    listaJogadores.jogador1.nome = inputSeuNome.value;
+    listaJogadores.jogador2.nome = nomeOponente;
+  } else if (listaJogadores.jogador2.id === meuId.id) {
+    listaJogadores.jogador2.nome = inputSeuNome.value;
+    listaJogadores.jogador1.nome = nomeOponente;
   }
 }
 
 let jogadaDaVez = {
   posicao: "",
-  letra: jogadores.jogador1.letra,
-  jogador: jogadores.jogador1.nome,
+  letra: listaJogadores.jogador1.letra,
+  jogador: listaJogadores.jogador1.nome,
 };
 
 // Clique no botão Iniciar jogo
-let inicio = false;
 
 
 BotaoStart.addEventListener("click", () => {
-  inicio = true;
-  socket.emit("iniciou", inicio);
   defineNomeParaCadaId();
   iniciaJogo();
-  console.log(jogadaDaVez)
-
-  socket.emit("jogadores", jogadores);
-  spanVez.textContent = jogadores.jogador1.nome;
+  socket.emit("jogador", "autorizado");
+  socket.emit("jogadores", listaJogadores);
+  spanJogadorVez.textContent = listaJogadores.jogador1.nome;
 });
 
 // Recebe situação atual do tabuleiro
 socket.on("jogada", (jg, tab) => {
   jogadaDaVez = jg;
-  container = tab;
+  statusContainerTabuleiro = tab;
 
-  container.forEach((linha, indexLinha) => {
+  statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
       const index = indexLinha * 3 + indexColuna;
-      tabela[index].textContent = valor;
+      spanTabuleiro[index].textContent = valor;
+
+      if (spanTabuleiro[index].textContent !== '') {
+        spanTabuleiro[index].classList.add('disable')
+      }
+
     });
   });
 
-  if (jogadaDaVez.jogador == jogadores.jogador1.nome) {
-    spanVez.textContent = jogadores.jogador2.nome;
+  if (jogadaDaVez.jogador == listaJogadores.jogador1.nome) {
+    spanJogadorVez.textContent = listaJogadores.jogador2.nome;
 
-
-  } else {
-    spanVez.textContent = jogadores.jogador1.nome;
+  } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
+    spanJogadorVez.textContent = listaJogadores.jogador1.nome;
   }
+});
 
-  
+BotaoNovoJogo.addEventListener("click", () => {
+  limpa();
 });
 
 function clique(ev) {
@@ -140,60 +132,56 @@ function clique(ev) {
   jogadaDaVez.posicao = regiao;
   desabilitaRegiao(span);
   socket.emit("jogada", jogadaDaVez, jogadaDaVez.posicao);
+  console.log('jogada da vez- clique')
+  console.log(jogadaDaVez)
 }
 
 function iniciaJogo() {
-  // Limpa o tabuleiro (se necessário) e adiciona eventos de clique
-  tabela.forEach((element) => {
+  spanTabuleiro.forEach((element) => {
     element.innerText = "";
-    element.classList.add("cursor-pointer");
+    element.classList.remove("disable");
     element.addEventListener("click", clique);
   });
   BotaoStart.style.display = "none";
 }
 
 function desabilitaRegiao(element) {
-  element.classList.remove("cursor-pointer");
+  element.classList.add("disable");
   element.removeEventListener("click", clique);
 }
 
 function ganhador(element) {
-  if (jogadores.jogador1.letra == element) {
-    venceu.textContent = jogadores.jogador1.nome + " venceu a partida";
+  if (listaJogadores.jogador1.letra == element) {
+    spanMsgVencedor.textContent = listaJogadores.jogador1.nome + " venceu a partida";
     desabilitarTabela();
-    novoJogo.style.display = "flex";
-  } else if (jogadores.jogador2.letra == element) {
-    venceu.textContent = jogadores.jogador2.nome + " venceu a partida";
+    BotaoNovoJogo.style.display = "flex";
+  } else if (listaJogadores.jogador2.letra == element) {
+    spanMsgVencedor.textContent = listaJogadores.jogador2.nome + " venceu a partida";
     desabilitarTabela();
 
-    novoJogo.style.display = "flex";
+    BotaoNovoJogo.style.display = "flex";
   }
 }
 
 function desabilitarTabela() {
-  tabela.forEach((item) => {
+  spanTabuleiro.forEach((item) => {
     item.classList.add("disable");
   });
 }
 
 function limpa() {
-  tabela.forEach((item) => {
+  spanTabuleiro.forEach((item) => {
     item.textContent = "";
     item.classList.remove("disable");
   });
-  spanVez.textContent = "";
-  venceu.textContent = "";
-  seuNomeInput.value = "";
-  inicio = "";
-  nomeOponenteInput.value = "";
-  novoJogo.style.display = "none";
-  BotaoconfirmarNome.style.display = "flex";
-  tabuleiro.style.display = "none";
+  spanJogadorVez.textContent = "";
+  spanMsgVencedor.textContent = "";
+  inputSeuNome.value = "";
+  iniciouJogo = "";
+  inputNomeOponente.value = "";
+  BotaoNovoJogo.style.display = "none";
+  botaoConfirmaNome.style.display = "flex";
+  containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
 }
-
-novoJogo.addEventListener("click", () => {
-  limpa();
-});
-
 

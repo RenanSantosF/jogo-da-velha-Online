@@ -15,10 +15,6 @@
   align-items: center;
 }
 
-.enable {
-  pointer-events: auto;
-}
-
-.active {
-  display: flex;
+.disable {
+  pointer-events: none;
 }

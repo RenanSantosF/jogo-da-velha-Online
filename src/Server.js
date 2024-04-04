@@ -18,7 +18,6 @@ let container = [
   ["", "", ""],
   ["", "", ""],
 ];
-// let novoJogo = ''
 
 let jogadores = ''
 let usuariosConectados = []
@@ -97,40 +96,36 @@ io.on('connection', (socket) => {
     return vencedor
   }
 
-  socket.on('iniciou', (inicio) => {
-    if(inicio == true) {
-      autorizacao = []
-      container = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-      ];
-    }
-  })
+  // socket.on('iniciouJogo', (iniciouJogo) => {
+  //   if(iniciouJogo == true) {
+  //     container = [
+  //       ["", "", ""],
+  //       ["", "", ""],
+  //       ["", "", ""],
+  //     ];
+  //     usuariosAutorizados = []
+  //   }
+  // })
 
   // Recebe jogadores
-  socket.on('jogadores', (date, inicio) => {
+  socket.on('jogadores', (date) => {
     jogadores = date
-    if(inicio == 'iniciou') {
-      container = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-      ];
-      
-    }
   })
-
 
   socket.on('jogador',(info) => {
     usuariosAutorizados.push(info)
+    console.log('usuarios autorizados')
+    console.log(usuariosAutorizados)
     if (usuariosAutorizados[0] === usuariosAutorizados[1]) {
       io.emit('jogador', 'autorizado')
-      console.log(usuariosAutorizados)
       usuariosAutorizados = []
+      container = [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
+      ];
     }
   })
-
 
   // Captura cada jogada
   socket.on("jogada", (jg) => {
