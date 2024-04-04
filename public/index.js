@@ -12,7 +12,6 @@ const spanJogadorVez = document.getElementById("turnPlayer");
 const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const spanMsgAguardarJogador = document.getElementById("aguardo");
-let iniciouJogo = false;
 let autorizacao = "";
 
 let statusContainerTabuleiro = "";
@@ -86,11 +85,8 @@ let jogadaDaVez = {
 };
 
 // Clique no botão Iniciar jogo
-
-
 BotaoStart.addEventListener("click", () => {
-  
-  bloqueiaRodada()
+  bloqueiaRodada();
   defineNomeParaCadaId();
   iniciaJogo();
   socket.emit("jogador", "autorizado");
@@ -99,28 +95,29 @@ BotaoStart.addEventListener("click", () => {
 });
 
 // Recebe situação atual do tabuleiro
-socket.on("jogada", (jg, tab) => {
+let vencedorPartida = "";
+socket.on("jogada", (jg, tab, vencedor) => {
+  vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
+  ganhador(vencedorPartida);
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
       const index = indexLinha * 3 + indexColuna;
       spanTabuleiro[index].textContent = valor;
 
-      if (spanTabuleiro[index].textContent !== '') {
-        spanTabuleiro[index].classList.add('disable')
+      if (spanTabuleiro[index].textContent !== "") {
+        spanTabuleiro[index].classList.add("disable");
 
         if (jogadaDaVez.jogador == listaJogadores.jogador1.nome) {
           spanJogadorVez.textContent = listaJogadores.jogador2.nome;
-      
         } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
           spanJogadorVez.textContent = listaJogadores.jogador1.nome;
         }
       }
     });
   });
-
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
@@ -133,10 +130,9 @@ function clique(ev) {
   const regiao = span.dataset.region;
   jogadaDaVez.posicao = regiao;
   // desabilitaRegiao(span);
-  bloqueiaRodada()
+  document.addEventListener('click', bloqueiaRodada())
+
   socket.emit("jogada", jogadaDaVez, jogadaDaVez.posicao);
-  console.log('jogada da vez- clique')
-  console.log(jogadaDaVez)
 }
 
 function iniciaJogo() {
@@ -148,21 +144,22 @@ function iniciaJogo() {
   BotaoStart.style.display = "none";
 }
 
-// function desabilitaRegiao(element) {
-//   element.classList.add("disable");
-//   element.removeEventListener("click", clique);
-// }
-
 function ganhador(element) {
   if (listaJogadores.jogador1.letra == element) {
-    spanMsgVencedor.textContent = listaJogadores.jogador1.nome + " venceu a partida";
-    desabilitarTabela();
+    spanMsgVencedor.textContent =
+      `${listaJogadores.jogador1.nome} venceu a partida`
     BotaoNovoJogo.style.display = "flex";
-  } else if (listaJogadores.jogador2.letra == element) {
-    spanMsgVencedor.textContent = listaJogadores.jogador2.nome + " venceu a partida";
-    desabilitarTabela();
-
+    desabilitaTabela();
+    element = "";
+    socket.emit('fimJogo', 'fim de jogo')
+  }
+  else if (listaJogadores.jogador2.letra == element) {
+    spanMsgVencedor.textContent =
+    `${listaJogadores.jogador2.nome} venceu a partida`
     BotaoNovoJogo.style.display = "flex";
+    desabilitaTabela();
+    element = "";
+    socket.emit('fimJogo', 'fim de jogo')
   }
 }
 
@@ -174,16 +171,16 @@ function limpa() {
   spanJogadorVez.textContent = "";
   spanMsgVencedor.textContent = "";
   inputSeuNome.value = "";
-  iniciouJogo = "";
   inputNomeOponente.value = "";
   BotaoNovoJogo.style.display = "none";
   botaoConfirmaNome.style.display = "flex";
   containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
+  reabilitaTabela()
 }
 
 function waitForElement(selector) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const intervalId = setInterval(() => {
       const element = document.querySelector(selector);
       if (element) {
@@ -195,17 +192,31 @@ function waitForElement(selector) {
 }
 
 async function bloqueiaRodada() {
-  const spanJogadorVez = await waitForElement('#turnPlayer');
+  const spanJogadorVez = await waitForElement("#turnPlayer");
 
   setInterval(() => {
     if (spanJogadorVez.textContent !== inputSeuNome.value) {
+      
+
       spanTabuleiro.forEach((item) => {
-        item.classList.add('disable');
+        item.classList.add("disable");
       });
     } else {
       spanTabuleiro.forEach((item) => {
-        item.classList.remove('disable');
+        item.classList.remove("disable");
       });
     }
   }, 10);
+}
+
+function desabilitaTabela() {
+  spanTabuleiro.forEach((item) => {
+    item.classList.add("fim");
+  });
+}
+
+function reabilitaTabela() {
+  spanTabuleiro.forEach((item) => {
+    item.classList.remove("fim");
+  });
 }

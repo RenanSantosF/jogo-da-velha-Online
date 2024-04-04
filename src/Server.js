@@ -96,16 +96,6 @@ io.on('connection', (socket) => {
     return vencedor
   }
 
-  // socket.on('iniciouJogo', (iniciouJogo) => {
-  //   if(iniciouJogo == true) {
-  //     container = [
-  //       ["", "", ""],
-  //       ["", "", ""],
-  //       ["", "", ""],
-  //     ];
-  //     usuariosAutorizados = []
-  //   }
-  // })
 
   // Recebe jogadores
   socket.on('jogadores', (date) => {
@@ -155,6 +145,12 @@ io.on('connection', (socket) => {
   socket.on("player", (play) => {
     socket.broadcast.emit("player", play);
   });
+
+
+  // Verifica fim do jogo
+  socket.on('fimJogo', date => {
+    io.emit('fimJogo', date)
+  })
 
   // Evento de desconexão de um cliente
   socket.on('disconnect', () => {

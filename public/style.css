@@ -18,3 +18,7 @@
 .disable {
   pointer-events: none;
 }
+
+.fim {
+  pointer-events: none;
+}
