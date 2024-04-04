@@ -89,6 +89,8 @@ let jogadaDaVez = {
 
 
 BotaoStart.addEventListener("click", () => {
+  
+  bloqueiaRodada()
   defineNomeParaCadaId();
   iniciaJogo();
   socket.emit("jogador", "autorizado");
@@ -108,17 +110,17 @@ socket.on("jogada", (jg, tab) => {
 
       if (spanTabuleiro[index].textContent !== '') {
         spanTabuleiro[index].classList.add('disable')
-      }
 
+        if (jogadaDaVez.jogador == listaJogadores.jogador1.nome) {
+          spanJogadorVez.textContent = listaJogadores.jogador2.nome;
+      
+        } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
+          spanJogadorVez.textContent = listaJogadores.jogador1.nome;
+        }
+      }
     });
   });
 
-  if (jogadaDaVez.jogador == listaJogadores.jogador1.nome) {
-    spanJogadorVez.textContent = listaJogadores.jogador2.nome;
-
-  } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
-    spanJogadorVez.textContent = listaJogadores.jogador1.nome;
-  }
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
@@ -130,7 +132,8 @@ function clique(ev) {
   const span = ev.currentTarget;
   const regiao = span.dataset.region;
   jogadaDaVez.posicao = regiao;
-  desabilitaRegiao(span);
+  // desabilitaRegiao(span);
+  bloqueiaRodada()
   socket.emit("jogada", jogadaDaVez, jogadaDaVez.posicao);
   console.log('jogada da vez- clique')
   console.log(jogadaDaVez)
@@ -145,10 +148,10 @@ function iniciaJogo() {
   BotaoStart.style.display = "none";
 }
 
-function desabilitaRegiao(element) {
-  element.classList.add("disable");
-  element.removeEventListener("click", clique);
-}
+// function desabilitaRegiao(element) {
+//   element.classList.add("disable");
+//   element.removeEventListener("click", clique);
+// }
 
 function ganhador(element) {
   if (listaJogadores.jogador1.letra == element) {
@@ -161,12 +164,6 @@ function ganhador(element) {
 
     BotaoNovoJogo.style.display = "flex";
   }
-}
-
-function desabilitarTabela() {
-  spanTabuleiro.forEach((item) => {
-    item.classList.add("disable");
-  });
 }
 
 function limpa() {
@@ -185,3 +182,30 @@ function limpa() {
   BotaoStart.style.display = "flex";
 }
 
+function waitForElement(selector) {
+  return new Promise(resolve => {
+    const intervalId = setInterval(() => {
+      const element = document.querySelector(selector);
+      if (element) {
+        clearInterval(intervalId);
+        resolve(element);
+      }
+    }, 100);
+  });
+}
+
+async function bloqueiaRodada() {
+  const spanJogadorVez = await waitForElement('#turnPlayer');
+
+  setInterval(() => {
+    if (spanJogadorVez.textContent !== inputSeuNome.value) {
+      spanTabuleiro.forEach((item) => {
+        item.classList.add('disable');
+      });
+    } else {
+      spanTabuleiro.forEach((item) => {
+        item.classList.remove('disable');
+      });
+    }
+  }, 10);
+}
