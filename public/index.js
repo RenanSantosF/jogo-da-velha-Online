@@ -12,6 +12,7 @@ const spanJogadorVez = document.getElementById("turnPlayer");
 const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const spanMsgAguardarJogador = document.getElementById("aguardo");
+const alerta = document.getElementById('alerta')
 let autorizacao = "";
 let statusContainerTabuleiro = "";
 
@@ -56,6 +57,7 @@ botaoConfirmaNome.addEventListener("click", () => {
   socket.emit("player", inputSeuNome.value);
   seuNome = inputSeuNome.value;
   botaoConfirmaNome.style.display = "none";
+  inputSeuNome.setAttribute('disabled', 'disable');
 });
 
 socket.on("jogador", (inf) => {
@@ -77,6 +79,8 @@ function defineNomeParaCadaId() {
   }
 }
 
+inputSeuNome.addEventListener('keyup', validaNome)
+
 let jogadaDaVez = {
   posicao: "",
   letra: listaJogadores.jogador1.letra,
@@ -85,12 +89,22 @@ let jogadaDaVez = {
 
 // Clique no botão Iniciar jogo
 BotaoStart.addEventListener("click", () => {
-  bloqueiaRodada();
-  defineNomeParaCadaId();
-  iniciaJogo();
-  socket.emit("jogador", "autorizado");
-  socket.emit("jogadores", listaJogadores);
-  spanJogadorVez.textContent = listaJogadores.jogador1.nome;
+  if (nomeOponente.length < 2) {
+    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`
+  }
+  else if(inputSeuNome.value.length < 2) {
+    alerta.textContent = `Por favor, insira um nome com mais de 2 caracteres!`
+  } else {
+    bloqueiaRodada();
+    defineNomeParaCadaId();
+    iniciaJogo();
+    socket.emit("jogador", "autorizado");
+    socket.emit("jogadores", listaJogadores);
+    spanJogadorVez.textContent = listaJogadores.jogador1.nome;
+    alerta.textContent = ``
+
+
+  }
 });
 
 // Recebe situação atual do tabuleiro
@@ -167,17 +181,19 @@ function limpa() {
     item.textContent = "";
     item.classList.remove("disable");
   });
+  nomeOponente = ''
   spanJogadorVez.textContent = "";
   spanMsgVencedor.textContent = "";
   inputSeuNome.value = "";
   inputNomeOponente.value = "";
   BotaoNovoJogo.style.display = "none";
-  botaoConfirmaNome.style.display = "flex";
+  botaoConfirmaNome.style.display = "none";
   containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
   reabilitaTabela()
   jogadaDaVez.jogador = listaJogadores.jogador2.nome
   jogadaDaVez.jogador = listaJogadores.jogador2.nome
+  inputSeuNome.removeAttribute('disabled');
 }
 
 function waitForElement(selector) {
@@ -219,3 +235,23 @@ function reabilitaTabela() {
     item.classList.remove("fim");
   });
 }
+
+function validaNome() {
+  if (inputSeuNome.value.length > 2) {
+    botaoConfirmaNome.style.display = 'flex'
+  } else {
+    botaoConfirmaNome.style.display = 'none'
+  }
+}
+
+function validaNomeOponente() {
+  if (nomeOponente.length > 2 && inputSeuNome.value.length > 2) {
+  } else {
+    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`
+  }
+}
+
+
+
+
+

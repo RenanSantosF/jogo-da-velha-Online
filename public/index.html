@@ -11,17 +11,18 @@
   <body>
     <h1>Jogo da Velha</h1>
     <hr />
+    <span id="alerta"></span>
     <label for="player1"></label>
     <input type="text" id="player1" placeholder="Seu nome" value="" />
-    <button id="confirmarNome">OK</button>
+    <button style="display: none;" id="confirmarNome">OK</button>
     <label for="player2"></label>
-    <input type="text" id="player2" placeholder="Aguardando jogador..." value="" />
+    <input type="text" id="player2" disabled placeholder="Aguardando jogador..." value="" />
 
     <button style="display: flex;" id="start" class="">Começar!</button>
     <span id="aguardo"></span>
 
     <h2 id="vez">Vez de: <span id="turnPlayer"></span></h2>
-    <span id="venceu">campeao</span>
+    <span id="venceu"></span>
     <button style="display: none;" id="novoJogo">Novo Jogo</button>
 
     <section style="display: none;" id="container">
