@@ -138,19 +138,17 @@ io.on('connection', (socket) => {
     let vencedor = verificarCampeao(container)
 
     console.table(container)
+    
+
     io.emit("jogada", jg, container, vencedor);
   });
 
-  // Captura e envia nome do jogador
-  socket.on("player", (play) => {
-    socket.broadcast.emit("player", play);
-  });
+    // Captura e envia nome do jogador
+    socket.on("player", (play) => {
+      socket.broadcast.emit("player", play);
+    });
 
 
-  // Verifica fim do jogo
-  socket.on('fimJogo', date => {
-    io.emit('fimJogo', date)
-  })
 
   // Evento de desconexão de um cliente
   socket.on('disconnect', () => {

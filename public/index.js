@@ -13,7 +13,6 @@ const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const spanMsgAguardarJogador = document.getElementById("aguardo");
 let autorizacao = "";
-
 let statusContainerTabuleiro = "";
 
 let listaJogadores = {
@@ -102,6 +101,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
 
+
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
       const index = indexLinha * 3 + indexColuna;
@@ -115,6 +115,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
         } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
           spanJogadorVez.textContent = listaJogadores.jogador1.nome;
         }
+
       }
     });
   });
@@ -151,7 +152,6 @@ function ganhador(element) {
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
-    socket.emit('fimJogo', 'fim de jogo')
   }
   else if (listaJogadores.jogador2.letra == element) {
     spanMsgVencedor.textContent =
@@ -159,7 +159,6 @@ function ganhador(element) {
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
-    socket.emit('fimJogo', 'fim de jogo')
   }
 }
 
@@ -177,6 +176,8 @@ function limpa() {
   containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
   reabilitaTabela()
+  jogadaDaVez.jogador = listaJogadores.jogador2.nome
+  jogadaDaVez.jogador = listaJogadores.jogador2.nome
 }
 
 function waitForElement(selector) {
@@ -196,8 +197,6 @@ async function bloqueiaRodada() {
 
   setInterval(() => {
     if (spanJogadorVez.textContent !== inputSeuNome.value) {
-      
-
       spanTabuleiro.forEach((item) => {
         item.classList.add("disable");
       });
