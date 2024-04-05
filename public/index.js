@@ -1,6 +1,7 @@
 var socket = io();
 
 //  Inicia variáveis
+
 const inputSeuNome = document.getElementById("player1");
 const botaoConfirmaNome = document.getElementById("confirmarNome");
 const inputNomeOponente = document.getElementById("player2");
@@ -115,6 +116,7 @@ BotaoStart.addEventListener("click", () => {
     spanJogadorVez.textContent = listaJogadores.jogador1.nome;
     alerta.textContent = ``;
     socket.emit("player", inputSeuNome.value);
+    botaoConfirmaNome.style.display = "none";
   }
 });
 
@@ -145,7 +147,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
-  limpa();
+  limpaReiniciarJogo();
 });
 
 function clique(ev) {
@@ -185,7 +187,7 @@ function ganhador(element) {
   }
 }
 
-function limpa() {
+function limpaReiniciarJogo() {
   spanTabuleiro.forEach((item) => {
     item.textContent = "";
     item.classList.remove("disable");

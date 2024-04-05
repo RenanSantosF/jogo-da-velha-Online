@@ -103,6 +103,7 @@
 .Botao {
   font-weight: bold;
   background-color: #14633b;
+  /* background-color: #6b6b6b; */
   border: none;
   color: white;
   padding: 15px 32px;
@@ -159,8 +160,6 @@
   animation: moveButton 1s infinite alternate;
 }
 
-
-
 @keyframes moveButton {
   from {
     transform: scale(0.95);
@@ -182,9 +181,11 @@
 .disable {
   pointer-events: none;
 }
+
 .fim {
   pointer-events: none;
 }
+
 #item1 {
 border-top-left-radius: 2rem;
 }
