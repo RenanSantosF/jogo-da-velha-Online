@@ -9,33 +9,48 @@
 
   </head>
   <body>
-    <h1>Jogo da Velha</h1>
-    <hr />
-    <span id="alerta"></span>
-    <label for="player1"></label>
-    <input type="text" id="player1" placeholder="Seu nome" value="" />
-    <button style="display: none;" id="confirmarNome">OK</button>
-    <label for="player2"></label>
-    <input type="text" id="player2" disabled placeholder="Aguardando jogador..." value="" />
+    <div class="container">
+      <div class="container-titulo">
+        <h1 class="titulo">Jogo da Velha</h1>
+      </div>
+      
+      <span id="alerta"></span>
+      <label for="player1"></label>
+      <div class="container-seuNome">
+        <input class="inputplayer" type="text" id="player1" placeholder="Seu nome" value="" />
+        <button style="display: none;" id="confirmarNome">OK</button>
+      </div>
+      
+      <label for="player2"></label>
+      <input class="inputplayer player2" type="text" id="player2" disabled placeholder="Aguardando jogador..." value="" />
 
-    <button style="display: flex;" id="start" class="">Começar!</button>
-    <span id="aguardo"></span>
+      <button style="display: flex;" id="start" class="Botao">Começar!</button>
+      <span id="aguardo"></span>
 
-    <h2 id="vez">Vez de: <span id="turnPlayer"></span></h2>
-    <span id="venceu"></span>
-    <button style="display: none;" id="novoJogo">Novo Jogo</button>
+      <div class="container-vez">
+        <h2 style="display: none;" id="vez">Vez de: <span id="turnPlayer"></span></h2>
+        
+      </div>
+      
+      <span id="venceu"></span>
 
-    <section style="display: none;" id="container">
-      <span id="1" class="cursor-pointer" data-region="0.0"></span>
-      <span id="2" class="cursor-pointer" data-region="0.1"></span>
-      <span id="3" class="cursor-pointer" data-region="0.2"></span>
-      <span id="4" class="cursor-pointer" data-region="1.0"></span>
-      <span id="5" class="cursor-pointer" data-region="1.1"></span>
-      <span id="6" class="cursor-pointer" data-region="1.2"></span>
-      <span id="7" class="cursor-pointer" data-region="2.0"></span>
-      <span id="8" class="cursor-pointer" data-region="2.1"></span>
-      <span id="9" class="cursor-pointer" data-region="2.2"></span>
-    </section>
+      <div class="container-botaoReiniciar">
+        <button class="botaoReiniciar" style="display: none;" id="novoJogo">Novo Jogo</button>
+      </div>
+
+      <section style="display: none;" id="container">
+        <span id="item1" class="cursor-pointer" data-region="0.0"></span>
+        <span id="item2" class="cursor-pointer" data-region="0.1"></span>
+        <span id="item3" class="cursor-pointer" data-region="0.2"></span>
+        <span id="item4" class="cursor-pointer" data-region="1.0"></span>
+        <span id="item5" class="cursor-pointer" data-region="1.1"></span>
+        <span id="item6" class="cursor-pointer" data-region="1.2"></span>
+        <span id="item7" class="cursor-pointer" data-region="2.0"></span>
+        <span id="item8" class="cursor-pointer" data-region="2.1"></span>
+        <span id="item9" class="cursor-pointer" data-region="2.2"></span>
+      </section>
+  
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="index.js"></script>

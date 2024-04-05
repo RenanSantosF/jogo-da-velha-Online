@@ -157,6 +157,7 @@ function iniciaJogo() {
     element.addEventListener("click", clique);
   });
   BotaoStart.style.display = "none";
+  ContainerMsgVencedor.style.display = 'flex'
 }
 
 function ganhador(element) {
@@ -166,6 +167,7 @@ function ganhador(element) {
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
+    ContainerMsgVencedor.style.display = 'none'
   }
   else if (listaJogadores.jogador2.letra == element) {
     spanMsgVencedor.textContent =
@@ -173,6 +175,7 @@ function ganhador(element) {
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
+    ContainerMsgVencedor.style.display = 'none'
   }
 }
 
