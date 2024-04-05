@@ -2,6 +2,9 @@ var socket = io();
 
 //  Inicia variáveis
 
+const btnCriarSala = document.getElementById('btnCriarSala')
+const btnEntrarSala = document.getElementById('btnEntrarSala')
+const inputEntrarSala = document.getElementById('inputEntrarSala')
 const inputSeuNome = document.getElementById("player1");
 const botaoConfirmaNome = document.getElementById("confirmarNome");
 const inputNomeOponente = document.getElementById("player2");
@@ -12,7 +15,6 @@ const spanMsgVencedor = document.getElementById("venceu");
 const spanJogadorVez = document.getElementById("turnPlayer");
 const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
-const spanMsgAguardarJogador = document.getElementById("aguardo");
 const alerta = document.getElementById("alerta");
 let autorizacao = "";
 let statusContainerTabuleiro = "";
@@ -50,8 +52,10 @@ let meuId = {
   id: "",
 };
 
+
 socket.on("seuId", (id) => {
   meuId.id = id;
+
 });
 
 // Recebe informação do jogador contra
@@ -82,6 +86,11 @@ socket.on("jogador", (inf) => {
     autorizacao = "";
   }
 });
+
+socket.on('teste', msg => {
+  console.log(msg)
+})
+
 
 function defineNomeParaCadaId() {
   if (listaJogadores.jogador1.id === meuId.id) {
@@ -187,7 +196,7 @@ function ganhador(element) {
   }
 }
 
-function limpaReiniciarJogo() {
+export function limpaReiniciarJogo() {
   spanTabuleiro.forEach((item) => {
     item.textContent = "";
     item.classList.remove("disable");
@@ -259,9 +268,25 @@ function validaNome() {
   }
 }
 
-function validaNomeOponente() {
-  if (nomeOponente.length > 2 && inputSeuNome.value.length > 2) {
-  } else {
-    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`;
-  }
+// function validaNomeOponente() {
+//   if (nomeOponente.length > 2 && inputSeuNome.value.length > 2) {
+//   } else {
+//     alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`;
+//   }
+// }
+
+btnCriarSala.addEventListener('click', criarSala)
+btnEntrarSala.addEventListener('click', entrarSala)
+
+function criarSala() {
+  let sala =  Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+  socket.emit(`criarSala`, sala)
+  console.log('Sala: ' + sala)
 }
+
+function entrarSala() {
+  socket.emit('entrarSala', Number(inputEntrarSala.value))
+}
+
+
+

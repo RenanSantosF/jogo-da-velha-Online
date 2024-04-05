@@ -3,6 +3,10 @@
   padding: 0;
   margin: 0;
   font-family: sans-serif;
+  user-select: none;
+  outline: 0;
+  -webkit-tap-highlight-color: transparent; /* Para navegadores baseados em WebKit (Safari, Chrome) */
+  tap-highlight-color: transparent;
 }
 
 #container {
@@ -15,6 +19,12 @@
   border-radius: 2rem;
   justify-content: center;
   height: 21.4rem;
+}
+
+.container-sala {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .container {
@@ -199,3 +209,34 @@ border-top-left-radius: 2rem;
   border-bottom-right-radius: 2rem;
 }
 
+#btnCriarSala {
+  font-weight: bold;
+  background-color: #536e61;
+  border: none;
+  color: white;
+  padding: 10px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 0.4rem;
+  transition: background-color 0.3s, transform 0.5s ease-in-out;
+}
+
+#btnEntrarSala {
+  font-weight: bold;
+  background-color: #666666;
+  border: none;
+  color: rgb(255, 255, 255);
+  padding: 10px 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 0.4rem;
+  transition: background-color 0.3s, transform 0.5s ease-in-out;
+}

@@ -15,6 +15,12 @@
       </div>
       
       <span id="alerta"></span>
+
+      <div class="container-sala">
+        <button id="btnCriarSala">Criar Sala</button>
+        <input id="inputEntrarSala" type="text" class="inputplayer" placeholder="informe o número da sala">
+        <button id="btnEntrarSala">Entrar em uma sala</button>
+      </div>
       <label for="player1"></label>
       <div class="container-seuNome">
         <input class="inputplayer" type="text" id="player1" placeholder="Insira um nome" value="" />
@@ -53,6 +59,6 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="/index.js"></script>
+    <script type="module" src="/index.js"></script>
   </body>
 </html>

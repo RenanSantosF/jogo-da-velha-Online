@@ -22,9 +22,62 @@ let jogadores = "";
 let usuariosConectados = [];
 let usuariosAutorizados = [];
 
+function verificarCampeao(element) {
+  let vencedor = "";
+  if (
+    element[0][0] != "" &&
+    element[0][0] == element[0][1] &&
+    element[0][1] == element[0][2]
+  ) {
+    vencedor = element[0][0];
+  } else if (
+    element[1][0] &&
+    element[1][0] == element[1][1] &&
+    element[1][1] == element[1][2]
+  ) {
+    vencedor = element[1][0];
+  } else if (
+    element[2][0] &&
+    element[2][0] == element[2][1] &&
+    element[2][1] == element[2][2]
+  ) {
+    vencedor = element[2][0];
+  } else if (
+    element[0][0] &&
+    element[0][0] == element[1][0] &&
+    element[1][0] == element[2][0]
+  ) {
+    vencedor = element[0][0];
+  } else if (
+    element[0][1] &&
+    element[0][1] == element[1][1] &&
+    element[1][1] == element[2][1]
+  ) {
+    vencedor = element[0][1];
+  } else if (
+    element[0][2] &&
+    element[0][2] == element[1][2] &&
+    element[1][2] == element[2][2]
+  ) {
+    vencedor = element[0][2];
+  } else if (
+    element[0][0] &&
+    element[0][0] == element[1][1] &&
+    element[1][1] == element[2][2]
+  ) {
+    vencedor = element[0][0];
+  } else if (
+    element[0][2] &&
+    element[0][2] == element[1][1] &&
+    element[1][1] == element[2][0]
+  ) {
+    vencedor = element[0][2];
+  }
+  return vencedor;
+}
+
 // Evento de conexão de um cliente
 io.on("connection", (socket) => {
-  console.log("Um cliente se conectou");
 
   // Gera ID único para cada usuário
   function generateUserId() {
@@ -42,59 +95,18 @@ io.on("connection", (socket) => {
   // Envia para todos os clientes a lista de usuários conectados
   io.emit("listaUsuarios", usuariosConectados);
 
-  function verificarCampeao(element) {
-    let vencedor = "";
-    if (
-      element[0][0] != "" &&
-      element[0][0] == element[0][1] &&
-      element[0][1] == element[0][2]
-    ) {
-      vencedor = element[0][0];
-    } else if (
-      element[1][0] &&
-      element[1][0] == element[1][1] &&
-      element[1][1] == element[1][2]
-    ) {
-      vencedor = element[1][0];
-    } else if (
-      element[2][0] &&
-      element[2][0] == element[2][1] &&
-      element[2][1] == element[2][2]
-    ) {
-      vencedor = element[2][0];
-    } else if (
-      element[0][0] &&
-      element[0][0] == element[1][0] &&
-      element[1][0] == element[2][0]
-    ) {
-      vencedor = element[0][0];
-    } else if (
-      element[0][1] &&
-      element[0][1] == element[1][1] &&
-      element[1][1] == element[2][1]
-    ) {
-      vencedor = element[0][1];
-    } else if (
-      element[0][2] &&
-      element[0][2] == element[1][2] &&
-      element[1][2] == element[2][2]
-    ) {
-      vencedor = element[0][2];
-    } else if (
-      element[0][0] &&
-      element[0][0] == element[1][1] &&
-      element[1][1] == element[2][2]
-    ) {
-      vencedor = element[0][0];
-    } else if (
-      element[0][2] &&
-      element[0][2] == element[1][1] &&
-      element[1][1] == element[2][0]
-    ) {
-      vencedor = element[0][2];
-    }
-    return vencedor;
-  }
+    // Escuta e cria a sala e adiciona o usuário
+    socket.on('criarSala', salaCriada => {
+      socket.join(salaCriada)
+      console.log('sala criada' + salaCriada)
+    })
+
+    // Escuta e direciona o cliente à sala existente
+    socket.on('entrarSala', salaEntrar => {
+      socket.join(salaEntrar)
+      const clientesNaSala = io.sockets.adapter.rooms.get(salaEntrar);
+      console.log('Integrantes da sala:', clientesNaSala);
+    })
 
   // Recebe jogadores do frontend e armazena na variável
   socket.on("jogadores", (date) => {
@@ -143,6 +155,8 @@ io.on("connection", (socket) => {
   socket.on("player", (play) => {
     socket.broadcast.emit("player", play);
   });
+
+
 
   // Evento de desconexão de um cliente
   socket.on("disconnect", () => {
