@@ -14,12 +14,16 @@
         <h1 class="titulo">Jogo da Velha</h1>
       </div>
       
-      <span id="alerta"></span>
+      <span class="alerta" id="alerta"></span>
+      <span class="alerta" id="salacheia"></span>
 
       <div class="container-sala">
         <button id="btnCriarSala">Criar Sala</button>
-        <input id="inputEntrarSala" type="text" class="inputplayer" placeholder="informe o número da sala">
-        <button id="btnEntrarSala">Entrar em uma sala</button>
+        <div class="container-entrar-sala">
+          <input id="inputEntrarSala" type="text" placeholder="Entre em uma sala">
+          <button id="btnEntrarSala">OK</button>
+        </div>
+        
       </div>
       <label for="player1"></label>
       <div class="container-seuNome">
@@ -31,7 +35,6 @@
       <input class="inputplayer player2" type="text" id="player2" disabled placeholder="Aguardando jogador..." value="" />
 
       <button style="display: flex;" id="start" class="Botao">Começar!</button>
-      <span id="aguardo"></span>
 
       <div class="container-vez">
         <h2 style="display: none;" id="vez">Vez de: <span id="turnPlayer"></span></h2>

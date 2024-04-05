@@ -21,6 +21,7 @@ let container = [
 let jogadores = "";
 let usuariosConectados = [];
 let usuariosAutorizados = [];
+let minhaSala = 0;
 
 function verificarCampeao(element) {
   let vencedor = "";
@@ -78,6 +79,41 @@ function verificarCampeao(element) {
 
 // Evento de conexão de um cliente
 io.on("connection", (socket) => {
+  // Escuta e cria a sala e adiciona o usuário
+  socket.on("criarSala", (salaCriada) => {
+    socket.join(salaCriada);
+    minhaSala = salaCriada;
+    console.log("sala criada" + salaCriada);
+
+    // Captura e armazena usuarios conectados
+    console.log("Usuário conectado =>", userId);
+    if (usuariosConectados.length <2) {
+      usuariosConectados.push(userId);
+    }
+  });
+
+  
+  // Escuta e direciona o cliente à sala existente
+  socket.on("entrarSala", (salaEntrar) => {
+    
+
+    // Verificar o número de usuários na sala
+    const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
+
+    console.log("Integrantes da sala:", usuariosNaSala);
+
+    if (!usuariosNaSala || usuariosNaSala.size < 2) {
+        socket.join(salaEntrar);
+        minhaSala = salaEntrar;
+        usuariosConectados.push(userId);
+        socket.emit('salaCheia', false);
+    } else {
+        socket.emit('salaCheia', true, salaEntrar);
+    }
+
+    // Envia para todos os clientes a lista de usuários conectados
+    io.to(minhaSala).emit("listaUsuarios", usuariosConectados);
+  });
 
   // Gera ID único para cada usuário
   function generateUserId() {
@@ -85,28 +121,6 @@ io.on("connection", (socket) => {
   }
   const userId = generateUserId();
   socket.emit("seuId", userId);
-
-  // Captura e armazena usuarios conectados
-  console.log("Usuário conectado =>", userId);
-  usuariosConectados.push(userId);
-  console.log('Usuarios conectados');
-  console.log(usuariosConectados);
-
-  // Envia para todos os clientes a lista de usuários conectados
-  io.emit("listaUsuarios", usuariosConectados);
-
-    // Escuta e cria a sala e adiciona o usuário
-    socket.on('criarSala', salaCriada => {
-      socket.join(salaCriada)
-      console.log('sala criada' + salaCriada)
-    })
-
-    // Escuta e direciona o cliente à sala existente
-    socket.on('entrarSala', salaEntrar => {
-      socket.join(salaEntrar)
-      const clientesNaSala = io.sockets.adapter.rooms.get(salaEntrar);
-      console.log('Integrantes da sala:', clientesNaSala);
-    })
 
   // Recebe jogadores do frontend e armazena na variável
   socket.on("jogadores", (date) => {
@@ -119,7 +133,7 @@ io.on("connection", (socket) => {
     console.log("usuarios autorizados");
     console.log(usuariosAutorizados);
     if (usuariosAutorizados[0] === usuariosAutorizados[1]) {
-      io.emit("jogador", "autorizado");
+      io.to(minhaSala).emit("jogador", "autorizado");
       usuariosAutorizados = [];
       container = [
         ["", "", ""],
@@ -148,15 +162,15 @@ io.on("connection", (socket) => {
     verificarCampeao(container);
     let vencedor = verificarCampeao(container);
 
-    io.emit("jogada", jg, container, vencedor);
+    io.to(minhaSala).emit("jogada", jg, container, vencedor);
   });
 
   // Captura e envia nome do jogador
   socket.on("player", (play) => {
-    socket.broadcast.emit("player", play);
+    console.log("minha sala " + minhaSala);
+
+    socket.to(minhaSala).emit("player", play);
   });
-
-
 
   // Evento de desconexão de um cliente
   socket.on("disconnect", () => {
@@ -174,7 +188,7 @@ io.on("connection", (socket) => {
     );
 
     // Envia para todos os clientes a lista de usuários conectados
-    io.emit("listaUsuarios", usuariosConectados);
+    io.to(minhaSala).emit("listaUsuarios", usuariosConectados);
   });
 });
 

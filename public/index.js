@@ -2,9 +2,9 @@ var socket = io();
 
 //  Inicia variáveis
 
-const btnCriarSala = document.getElementById('btnCriarSala')
-const btnEntrarSala = document.getElementById('btnEntrarSala')
-const inputEntrarSala = document.getElementById('inputEntrarSala')
+const btnCriarSala = document.getElementById("btnCriarSala");
+const btnEntrarSala = document.getElementById("btnEntrarSala");
+const inputEntrarSala = document.getElementById("inputEntrarSala");
 const inputSeuNome = document.getElementById("player1");
 const botaoConfirmaNome = document.getElementById("confirmarNome");
 const inputNomeOponente = document.getElementById("player2");
@@ -16,6 +16,7 @@ const spanJogadorVez = document.getElementById("turnPlayer");
 const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const alerta = document.getElementById("alerta");
+const salacheia = document.getElementById("salacheia");
 let autorizacao = "";
 let statusContainerTabuleiro = "";
 
@@ -32,6 +33,35 @@ let listaJogadores = {
   },
 };
 
+btnCriarSala.addEventListener("click", criarSala);
+btnEntrarSala.addEventListener("click", entrarSala);
+
+function criarSala() {
+  let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+  socket.emit(`criarSala`, sala);
+  console.log("Sala atual: " + sala);
+  btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
+  btnEntrarSala.style.display = 'none'
+  inputEntrarSala.style.display = "none";
+}
+
+function entrarSala() {
+  socket.emit("entrarSala", Number(inputEntrarSala.value));
+  socket.on("salaCheia", (valor, sala) => {
+    if (valor === true) {
+      salacheia.textContent = `Sala ${sala} cheia. Escolha outra sala ou criar uma.`;
+      inputEntrarSala.value = "";
+      setTimeout(() => {
+        salacheia.textContent = ``;
+      }, 6 * 1000);
+    } else if (valor === false) {
+      inputEntrarSala.style.display = "none";
+      btnEntrarSala.style.display = "none";
+      console.log(valor);
+    }
+  });
+}
+
 let usuariosConectados = [];
 socket.on("listaUsuarios", (lista) => {
   listaJogadores.jogador1.id = lista[0];
@@ -44,6 +74,8 @@ socket.on("listaUsuarios", (lista) => {
   } else {
     inputNomeOponente.placeholder = `Aguardando oponente...`;
   }
+  console.log("usuarios Conectados");
+  console.log(usuariosConectados);
 });
 
 // Informa Id do jogador atual
@@ -52,10 +84,8 @@ let meuId = {
   id: "",
 };
 
-
 socket.on("seuId", (id) => {
   meuId.id = id;
-
 });
 
 // Recebe informação do jogador contra
@@ -63,6 +93,7 @@ let nomeOponente = "";
 socket.on("player", (play) => {
   inputNomeOponente.value = play;
   nomeOponente = play;
+  console.log(play);
 });
 
 // Clique Confirmar o nome
@@ -78,6 +109,8 @@ botaoConfirmaNome.addEventListener("click", () => {
   }
 });
 
+
+
 socket.on("jogador", (inf) => {
   autorizacao = inf;
 
@@ -86,11 +119,6 @@ socket.on("jogador", (inf) => {
     autorizacao = "";
   }
 });
-
-socket.on('teste', msg => {
-  console.log(msg)
-})
-
 
 function defineNomeParaCadaId() {
   if (listaJogadores.jogador1.id === meuId.id) {
@@ -143,7 +171,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
       spanTabuleiro[index].textContent = valor;
 
       if (spanTabuleiro[index].textContent !== "") {
-        spanTabuleiro[index].classList.add("disable");
+        spanTabuleiro[index].classList.add("fim");
 
         if (jogadaDaVez.jogador == listaJogadores.jogador1.nome) {
           spanJogadorVez.textContent = listaJogadores.jogador2.nome;
@@ -214,6 +242,8 @@ export function limpaReiniciarJogo() {
   jogadaDaVez.jogador = listaJogadores.jogador2.nome;
   jogadaDaVez.jogador = listaJogadores.jogador2.nome;
   inputSeuNome.removeAttribute("disabled");
+  btnCriarSala.style.display = "flex";
+  inputEntrarSala.style.display = "flex";
 }
 
 function waitForElement(selector) {
@@ -267,26 +297,3 @@ function validaNome() {
     alerta.textContent = ``;
   }
 }
-
-// function validaNomeOponente() {
-//   if (nomeOponente.length > 2 && inputSeuNome.value.length > 2) {
-//   } else {
-//     alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`;
-//   }
-// }
-
-btnCriarSala.addEventListener('click', criarSala)
-btnEntrarSala.addEventListener('click', entrarSala)
-
-function criarSala() {
-  let sala =  Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-  socket.emit(`criarSala`, sala)
-  console.log('Sala: ' + sala)
-}
-
-function entrarSala() {
-  socket.emit('entrarSala', Number(inputEntrarSala.value))
-}
-
-
-
