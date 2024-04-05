@@ -12,7 +12,7 @@ const spanJogadorVez = document.getElementById("turnPlayer");
 const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const spanMsgAguardarJogador = document.getElementById("aguardo");
-const alerta = document.getElementById('alerta')
+const alerta = document.getElementById("alerta");
 let autorizacao = "";
 let statusContainerTabuleiro = "";
 
@@ -29,9 +29,18 @@ let listaJogadores = {
   },
 };
 
+let usuariosConectados = [];
 socket.on("listaUsuarios", (lista) => {
   listaJogadores.jogador1.id = lista[0];
   listaJogadores.jogador2.id = lista[1];
+  usuariosConectados = lista;
+  if (usuariosConectados.length >= 2) {
+    alerta.textContent = ``;
+    validaNome();
+    inputNomeOponente.placeholder = `Esperando inserir o nome`;
+  } else {
+    inputNomeOponente.placeholder = `Aguardando oponente...`;
+  }
 });
 
 // Informa Id do jogador atual
@@ -54,10 +63,14 @@ socket.on("player", (play) => {
 // Clique Confirmar o nome
 let seuNome = "";
 botaoConfirmaNome.addEventListener("click", () => {
-  socket.emit("player", inputSeuNome.value);
-  seuNome = inputSeuNome.value;
-  botaoConfirmaNome.style.display = "none";
-  inputSeuNome.setAttribute('disabled', 'disable');
+  if (usuariosConectados.length < 2) {
+    validaNome();
+  } else {
+    socket.emit("player", inputSeuNome.value);
+    seuNome = inputSeuNome.value;
+    botaoConfirmaNome.style.display = "none";
+    inputSeuNome.setAttribute("disabled", "disable");
+  }
 });
 
 socket.on("jogador", (inf) => {
@@ -79,7 +92,7 @@ function defineNomeParaCadaId() {
   }
 }
 
-inputSeuNome.addEventListener('keyup', validaNome)
+inputSeuNome.addEventListener("keyup", validaNome);
 
 let jogadaDaVez = {
   posicao: "",
@@ -90,10 +103,9 @@ let jogadaDaVez = {
 // Clique no botão Iniciar jogo
 BotaoStart.addEventListener("click", () => {
   if (nomeOponente.length < 2) {
-    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`
-  }
-  else if(inputSeuNome.value.length < 2) {
-    alerta.textContent = `Por favor, insira um nome com mais de 2 caracteres!`
+    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`;
+  } else if (inputSeuNome.value.length < 2) {
+    alerta.textContent = `Por favor, insira um nome com mais de 2 caracteres!`;
   } else {
     bloqueiaRodada();
     defineNomeParaCadaId();
@@ -101,9 +113,8 @@ BotaoStart.addEventListener("click", () => {
     socket.emit("jogador", "autorizado");
     socket.emit("jogadores", listaJogadores);
     spanJogadorVez.textContent = listaJogadores.jogador1.nome;
-    alerta.textContent = ``
-
-
+    alerta.textContent = ``;
+    socket.emit("player", inputSeuNome.value);
   }
 });
 
@@ -114,7 +125,6 @@ socket.on("jogada", (jg, tab, vencedor) => {
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
-
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
@@ -129,7 +139,6 @@ socket.on("jogada", (jg, tab, vencedor) => {
         } else if (jogadaDaVez.jogador == listaJogadores.jogador2.nome) {
           spanJogadorVez.textContent = listaJogadores.jogador1.nome;
         }
-
       }
     });
   });
@@ -145,7 +154,7 @@ function clique(ev) {
   const regiao = span.dataset.region;
   jogadaDaVez.posicao = regiao;
   // desabilitaRegiao(span);
-  document.addEventListener('click', bloqueiaRodada())
+  document.addEventListener("click", bloqueiaRodada());
 
   socket.emit("jogada", jogadaDaVez, jogadaDaVez.posicao);
 }
@@ -157,25 +166,22 @@ function iniciaJogo() {
     element.addEventListener("click", clique);
   });
   BotaoStart.style.display = "none";
-  ContainerMsgVencedor.style.display = 'flex'
+  ContainerMsgVencedor.style.display = "flex";
 }
 
 function ganhador(element) {
   if (listaJogadores.jogador1.letra == element) {
-    spanMsgVencedor.textContent =
-      `${listaJogadores.jogador1.nome} venceu a partida`
+    spanMsgVencedor.textContent = `${listaJogadores.jogador1.nome} venceu a partida`;
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
-    ContainerMsgVencedor.style.display = 'none'
-  }
-  else if (listaJogadores.jogador2.letra == element) {
-    spanMsgVencedor.textContent =
-    `${listaJogadores.jogador2.nome} venceu a partida`
+    ContainerMsgVencedor.style.display = "none";
+  } else if (listaJogadores.jogador2.letra == element) {
+    spanMsgVencedor.textContent = `${listaJogadores.jogador2.nome} venceu a partida`;
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
     element = "";
-    ContainerMsgVencedor.style.display = 'none'
+    ContainerMsgVencedor.style.display = "none";
   }
 }
 
@@ -184,7 +190,7 @@ function limpa() {
     item.textContent = "";
     item.classList.remove("disable");
   });
-  nomeOponente = ''
+  nomeOponente = "";
   spanJogadorVez.textContent = "";
   spanMsgVencedor.textContent = "";
   inputSeuNome.value = "";
@@ -193,10 +199,10 @@ function limpa() {
   botaoConfirmaNome.style.display = "none";
   containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
-  reabilitaTabela()
-  jogadaDaVez.jogador = listaJogadores.jogador2.nome
-  jogadaDaVez.jogador = listaJogadores.jogador2.nome
-  inputSeuNome.removeAttribute('disabled');
+  reabilitaTabela();
+  jogadaDaVez.jogador = listaJogadores.jogador2.nome;
+  jogadaDaVez.jogador = listaJogadores.jogador2.nome;
+  inputSeuNome.removeAttribute("disabled");
 }
 
 function waitForElement(selector) {
@@ -240,21 +246,20 @@ function reabilitaTabela() {
 }
 
 function validaNome() {
-  if (inputSeuNome.value.length > 2) {
-    botaoConfirmaNome.style.display = 'flex'
+  if (inputSeuNome.value.length < 2) {
+    botaoConfirmaNome.style.display = "none";
+  } else if (usuariosConectados.length < 2) {
+    botaoConfirmaNome.style.display = "none";
+    alerta.textContent = `Aguarde até que o seu oponente se conecte!`;
   } else {
-    botaoConfirmaNome.style.display = 'none'
+    botaoConfirmaNome.style.display = "flex";
+    alerta.textContent = ``;
   }
 }
 
 function validaNomeOponente() {
   if (nomeOponente.length > 2 && inputSeuNome.value.length > 2) {
   } else {
-    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`
+    alerta.textContent = `Por favor, aguarde o oponente inserir um nome!`;
   }
 }
-
-
-
-
-
