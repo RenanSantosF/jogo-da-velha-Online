@@ -36,14 +36,8 @@ let listaJogadores = {
 btnCriarSala.addEventListener("click", criarSala);
 btnEntrarSala.addEventListener("click", entrarSala);
 
-function criarSala() {
-  let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-  socket.emit(`criarSala`, sala);
-  console.log("Sala atual: " + sala);
-  btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
-  btnEntrarSala.style.display = 'none'
-  inputEntrarSala.style.display = "none";
-}
+
+
 
 function entrarSala() {
   socket.emit("entrarSala", Number(inputEntrarSala.value));
@@ -60,6 +54,7 @@ function entrarSala() {
       console.log(valor);
     }
   });
+  
 }
 
 let usuariosConectados = [];
@@ -88,6 +83,16 @@ socket.on("seuId", (id) => {
   meuId.id = id;
 });
 
+function criarSala() {
+  let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+  socket.emit('sala', sala)
+  socket.emit(`criarSala`, sala, meuId.id);
+  console.log("Sala atual: " + sala);
+  btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
+  btnEntrarSala.style.display = "none";
+  inputEntrarSala.style.display = "none";
+}
+
 // Recebe informação do jogador contra
 let nomeOponente = "";
 socket.on("player", (play) => {
@@ -102,17 +107,16 @@ botaoConfirmaNome.addEventListener("click", () => {
   if (usuariosConectados.length < 2) {
     validaNome();
   } else {
-    socket.emit("player", inputSeuNome.value);
+    socket.emit("player", inputSeuNome.value, meuId.id);
     seuNome = inputSeuNome.value;
     botaoConfirmaNome.style.display = "none";
     inputSeuNome.setAttribute("disabled", "disable");
   }
 });
 
-
-
 socket.on("jogador", (inf) => {
   autorizacao = inf;
+  console.log(autorizacao)
 
   if (autorizacao == "autorizado") {
     containerTabuleiro.style.display = "grid";
@@ -154,6 +158,10 @@ BotaoStart.addEventListener("click", () => {
     alerta.textContent = ``;
     socket.emit("player", inputSeuNome.value);
     botaoConfirmaNome.style.display = "none";
+    if (autorizacao == "autorizado") {
+      containerTabuleiro.style.display = "grid";
+      autorizacao = "";
+    }
   }
 });
 
@@ -162,6 +170,7 @@ let vencedorPartida = "";
 socket.on("jogada", (jg, tab, vencedor) => {
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
+  console.log(tab)
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
 
@@ -221,6 +230,12 @@ function ganhador(element) {
     desabilitaTabela();
     element = "";
     ContainerMsgVencedor.style.display = "none";
+  } else if(element === 'V') {
+    spanMsgVencedor.textContent = `Deu velha`;
+    BotaoNovoJogo.style.display = "flex";
+    desabilitaTabela();
+    element = "";
+    ContainerMsgVencedor.style.display = "none";
   }
 }
 
@@ -243,7 +258,6 @@ export function limpaReiniciarJogo() {
   jogadaDaVez.jogador = listaJogadores.jogador2.nome;
   inputSeuNome.removeAttribute("disabled");
   btnCriarSala.style.display = "flex";
-  inputEntrarSala.style.display = "flex";
 }
 
 function waitForElement(selector) {
@@ -290,6 +304,7 @@ function validaNome() {
   if (inputSeuNome.value.length < 2) {
     botaoConfirmaNome.style.display = "none";
   } else if (usuariosConectados.length < 2) {
+    console.log(usuariosConectados)
     botaoConfirmaNome.style.display = "none";
     alerta.textContent = `Aguarde até que o seu oponente se conecte!`;
   } else {
