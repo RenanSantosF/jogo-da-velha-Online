@@ -151,7 +151,7 @@ BotaoStart.addEventListener("click", () => {
     defineNomeParaCadaId();
     iniciaJogo();
     socket.emit("jogador", "autorizado", meuId.id);
-    socket.emit("jogadores", listaJogadores);
+    socket.emit("jogadores", listaJogadores, meuId.id);
     spanJogadorVez.textContent = listaJogadores.jogador1.nome;
     alerta.textContent = ``;
     socket.emit("player", inputSeuNome.value);
@@ -316,3 +316,10 @@ function validaNome() {
     alerta.textContent = ``;
   }
 }
+
+
+socket.on("tabuleiro", dat => {
+  console.log("tabuleirooooooooooo")
+  console.log(dat)
+})
+

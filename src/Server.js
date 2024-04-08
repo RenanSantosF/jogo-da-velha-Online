@@ -19,11 +19,16 @@ let container = [
   ["", "", ""],
   ["", "", ""],
 ];
-let jogadores = "";
+
+let tabuleiro = [
+  ["", "", ""],
+  ["", "", ""],
+  ["", "", ""],
+];
+
 let usuariosPorSala = {};
 let usuariosConectados = [];
 let usuariosAutorizados = [];
-let minhaSala = 0;
 let salaUsuario = null;
 
 function verificarCampeao(element) {
@@ -107,14 +112,10 @@ io.on("connection", (socket) => {
     }
 
     usuariosPorSala[salaCriada].push(userId);
-    console.log("usuario criou a sala");
-    console.log(usuariosPorSala[salaCriada]);
 
     Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
       if (usuarios.includes(meuId)) {
         salaUsuario = Number(sala);
-        console.log("usuario criadooooo");
-        console.log(salaUsuario);
       }
     });
   });
@@ -143,10 +144,6 @@ io.on("connection", (socket) => {
     // Envia para todos os clientes a lista de usuários conectados
     io.to(salaUsuario).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
 
-    console.log("usuarios por sala");
-    console.log(usuariosPorSala[salaEntrar]);
-    console.log("Integrantes das salas:");
-    console.log(usuariosNaSala)
   });
 
   // Captura e envia nome do jogador
@@ -170,10 +167,18 @@ io.on("connection", (socket) => {
   socket.emit("seuId", userId);
 
   // Recebe jogadores do frontend e armazena na variável
-  socket.on("jogadores", (date) => {
-    jogadores = date;
-    console.log("jogadores servidor")
-    console.log(jogadores)
+  socket.on("jogadores", (date, id) => {
+
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+
+        usuariosPorSala[sala].push(date)
+
+
+      }
+
+    });
+
   });
 
   // Verifica se está autorizado a começar
@@ -182,12 +187,11 @@ io.on("connection", (socket) => {
       if (usuarios.includes(id)) {
 
         usuariosAutorizados.push(info);
-        console.log("usuarios autorizados");
-        console.log(usuariosAutorizados);
+
         if (usuariosAutorizados) {
           io.to(Number(sala)).emit("jogador", "autorizado");
           // usuariosAutorizados = [];
-          container = [
+          tabuleiro = [
             ["", "", ""],
             ["", "", ""],
             ["", "", ""],
@@ -202,41 +206,38 @@ io.on("connection", (socket) => {
   // Captura cada jogada e alterna jogador
   socket.on("jogada", (jg, id) => {
 
-
-    
-    if (jg.jogador === jogadores.jogador1.nome) {
-      jg.jogador = jogadores.jogador2.nome;
-      jg.letra = jogadores.jogador2.letra;
-    } else {
-      jg.jogador = jogadores.jogador1.nome;
-      jg.letra = jogadores.jogador1.letra;
-    }
-
-    const separadorColuna = jg.posicao.split(".");
-    const linha = separadorColuna[0];
-    const coluna = separadorColuna[1];
-
-    container[linha][coluna] = jg.letra;
-
-    verificarCampeao(container);
-    let vencedor = verificarCampeao(container);
-
-    console.log('jogada')
-    console.log(jg)
-
-    console.log('container')
-    console.log(container)
-
-    console.log('jogadores')
-    console.log(jogadores)
-
-
     Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
       if (usuarios.includes(id)) {
+        usuariosPorSala[sala].push(tabuleiro)
 
-        io.to(Number(sala)).emit("jogada", jg, container, vencedor, sala);
+        socket.emit("tabuleiro", usuariosPorSala)
 
-        console.log("minha sala realmente é essa aqui" + Number(sala))
+        let tabuleiroAtualizado = usuariosPorSala[sala][4]
+
+        let listaJogadores = usuariosPorSala[sala][2]
+
+    
+        if (jg.jogador ===  listaJogadores.jogador1.nome) {
+          jg.jogador = listaJogadores.jogador2.nome;
+          jg.letra = listaJogadores.jogador2.letra;
+        } else {
+          jg.jogador = listaJogadores.jogador1.nome;
+          jg.letra = listaJogadores.jogador1.letra;
+        }
+
+        const separadorColuna = jg.posicao.split(".");
+        const linha = separadorColuna[0];
+        const coluna = separadorColuna[1];
+
+        container[linha][coluna] = jg.letra;
+        tabuleiroAtualizado[linha][coluna] = jg.letra;
+        console.log(tabuleiroAtualizado)
+
+
+        verificarCampeao(tabuleiroAtualizado);
+        let vencedor = verificarCampeao(tabuleiroAtualizado);
+
+        io.to(Number(sala)).emit("jogada", jg, tabuleiroAtualizado, vencedor, sala);
 
       }
     });
