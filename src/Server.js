@@ -76,18 +76,20 @@ function verificarCampeao(element) {
     element[1][1] == element[2][0]
   ) {
     vencedor = element[0][2];
-  } else if(
-    element[0][0] !== '' &&
-    element[0][1] !== '' &&
-    element[0][2] !== '' &&
-    element[1][0] !== '' &&
-    element[1][1] !== '' &&
-    element[1][2] !== '' &&
-    element[2][0] !== '' &&
-    element[2][1] !== '' &&
-    element[2][2] !== ''
-  ) {
-    vencedor = 'V'
+  } else {
+    if(
+      element[0][0] !== '' &&
+      element[0][1] !== '' &&
+      element[0][2] !== '' &&
+      element[1][0] !== '' &&
+      element[1][1] !== '' &&
+      element[1][2] !== '' &&
+      element[2][0] !== '' &&
+      element[2][1] !== '' &&
+      element[2][2] !== ''
+    ) {
+      vencedor = 'V'
+    }
   }
     return vencedor;
 }
@@ -170,26 +172,38 @@ io.on("connection", (socket) => {
   // Recebe jogadores do frontend e armazena na variável
   socket.on("jogadores", (date) => {
     jogadores = date;
+    console.log("jogadores servidor")
+    console.log(jogadores)
   });
 
   // Verifica se está autorizado a começar
-  socket.on("jogador", (info) => {
-    usuariosAutorizados.push(info);
-    console.log("usuarios autorizados");
-    console.log(usuariosAutorizados);
-    if (usuariosAutorizados) {
-      io.to(salaUsuario).emit("jogador", "autorizado");
-      // usuariosAutorizados = [];
-      container = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-      ];
-    }
+  socket.on("jogador", (info, id) => {
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+
+        usuariosAutorizados.push(info);
+        console.log("usuarios autorizados");
+        console.log(usuariosAutorizados);
+        if (usuariosAutorizados) {
+          io.to(Number(sala)).emit("jogador", "autorizado");
+          // usuariosAutorizados = [];
+          container = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""],
+          ];
+        }
+	
+      }
+    });
+    
   });
 
   // Captura cada jogada e alterna jogador
-  socket.on("jogada", (jg) => {
+  socket.on("jogada", (jg, id) => {
+
+
+    
     if (jg.jogador === jogadores.jogador1.nome) {
       jg.jogador = jogadores.jogador2.nome;
       jg.letra = jogadores.jogador2.letra;
@@ -217,7 +231,17 @@ io.on("connection", (socket) => {
     console.log(jogadores)
 
 
-    io.to(salaUsuario).emit("jogada", jg, container, vencedor);
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+
+        io.to(Number(sala)).emit("jogada", jg, container, vencedor, sala);
+
+        console.log("minha sala realmente é essa aqui" + Number(sala))
+
+      }
+    });
+
+
   });
 
   // Evento de desconexão de um cliente

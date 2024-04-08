@@ -24,20 +24,17 @@ let listaJogadores = {
   jogador1: {
     nome: "",
     id: "",
-    letra: "X",
+    letra: "X"
   },
   jogador2: {
     nome: "",
     id: "",
-    letra: "O",
+    letra: "O"
   },
 };
 
 btnCriarSala.addEventListener("click", criarSala);
 btnEntrarSala.addEventListener("click", entrarSala);
-
-
-
 
 function entrarSala() {
   socket.emit("entrarSala", Number(inputEntrarSala.value));
@@ -54,7 +51,6 @@ function entrarSala() {
       console.log(valor);
     }
   });
-  
 }
 
 let usuariosConectados = [];
@@ -131,7 +127,9 @@ function defineNomeParaCadaId() {
   } else if (listaJogadores.jogador2.id === meuId.id) {
     listaJogadores.jogador2.nome = inputSeuNome.value;
     listaJogadores.jogador1.nome = nomeOponente;
+
   }
+  console.log(listaJogadores)
 }
 
 inputSeuNome.addEventListener("keyup", validaNome);
@@ -152,32 +150,38 @@ BotaoStart.addEventListener("click", () => {
     bloqueiaRodada();
     defineNomeParaCadaId();
     iniciaJogo();
-    socket.emit("jogador", "autorizado");
+    socket.emit("jogador", "autorizado", meuId.id);
     socket.emit("jogadores", listaJogadores);
     spanJogadorVez.textContent = listaJogadores.jogador1.nome;
     alerta.textContent = ``;
     socket.emit("player", inputSeuNome.value);
     botaoConfirmaNome.style.display = "none";
-    if (autorizacao == "autorizado") {
-      containerTabuleiro.style.display = "grid";
-      autorizacao = "";
-    }
+    containerTabuleiro.style.display = "grid";
   }
 });
 
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
-socket.on("jogada", (jg, tab, vencedor) => {
+socket.on("jogada", (jg, tab, vencedor, salaUsuario) => {
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   console.log(tab)
+  console.log(jogadaDaVez)
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
+  console.log("sala usuario")
+  console.log(salaUsuario)
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
       const index = indexLinha * 3 + indexColuna;
       spanTabuleiro[index].textContent = valor;
+
+      if(spanTabuleiro[index].textContent == "X") {
+        spanTabuleiro[index].style.color = "#66a385"
+      } else {
+        spanTabuleiro[index].style.color = "#c46627"
+      }
 
       if (spanTabuleiro[index].textContent !== "") {
         spanTabuleiro[index].classList.add("fim");
@@ -204,7 +208,7 @@ function clique(ev) {
   // desabilitaRegiao(span);
   document.addEventListener("click", bloqueiaRodada());
 
-  socket.emit("jogada", jogadaDaVez, jogadaDaVez.posicao);
+  socket.emit("jogada", jogadaDaVez, meuId.id);
 }
 
 function iniciaJogo() {
@@ -230,7 +234,7 @@ function ganhador(element) {
     desabilitaTabela();
     element = "";
     ContainerMsgVencedor.style.display = "none";
-  } else if(element === 'V') {
+  } else if (element === 'V') {
     spanMsgVencedor.textContent = `Deu velha`;
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
