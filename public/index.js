@@ -169,6 +169,11 @@ socket.on("jogada", (jg, tab, vencedor) => {
     linha.forEach((valor, indexColuna) => {
       const index = indexLinha * 3 + indexColuna;
       spanTabuleiro[index].textContent = valor;
+      if (spanTabuleiro[index].textContent == "X") {
+        spanTabuleiro[index].style.color = "#66a385"
+      } else {
+        spanTabuleiro[index].style.color = "#c46627"
+      }
 
       if (spanTabuleiro[index].textContent !== "") {
         spanTabuleiro[index].classList.add("fim");
