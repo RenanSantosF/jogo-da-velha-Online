@@ -74,6 +74,22 @@ function verificarCampeao(element) {
   ) {
     vencedor = element[0][2];
   }
+  else {
+    if (
+      element[0][0] !== "" &&
+      element[0][1] !== "" &&
+      element[0][2] !== "" &&
+      element[1][0] !== "" &&
+      element[1][1] !== "" &&
+      element[1][2] !== "" &&
+      element[2][0] !== "" &&
+      element[2][1] !== "" &&
+      element[2][2] !== ""
+    ) {
+      vencedor = "V";
+    }
+
+  }
   return vencedor;
 }
 

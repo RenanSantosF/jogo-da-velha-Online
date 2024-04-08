@@ -222,6 +222,14 @@ function ganhador(element) {
     element = "";
     ContainerMsgVencedor.style.display = "none";
   }
+
+  else if (element == "V") {
+    spanMsgVencedor.textContent = `Deu Velha`;
+    BotaoNovoJogo.style.display = "flex";
+    desabilitaTabela();
+    element = "";
+    ContainerMsgVencedor.style.display = "none";
+  }
 }
 
 export function limpaReiniciarJogo() {
