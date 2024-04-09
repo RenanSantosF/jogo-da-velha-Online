@@ -36,21 +36,7 @@ let listaJogadores = {
 btnCriarSala.addEventListener("click", criarSala);
 btnEntrarSala.addEventListener("click", entrarSala);
 
-function entrarSala() {
-  socket.emit("entrarSala", Number(inputEntrarSala.value));
-  socket.on("salaCheia", (valor, sala) => {
-    if (valor === true) {
-      salacheia.textContent = `Sala ${sala} cheia. Escolha outra sala ou criar uma.`;
-      inputEntrarSala.value = "";
-      setTimeout(() => {
-        salacheia.textContent = ``;
-      }, 6 * 1000);
-    } else if (valor === false) {
-      inputEntrarSala.style.display = "none";
-      btnEntrarSala.style.display = "none";
-    }
-  });
-}
+
 
 let usuariosConectados = [];
 socket.on("listaUsuarios", (lista) => {
@@ -76,6 +62,8 @@ socket.on("seuId", (id) => {
   meuId.id = id;
 });
 
+
+
 function criarSala() {
   let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
   socket.emit('sala', sala)
@@ -83,6 +71,31 @@ function criarSala() {
   btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
   btnEntrarSala.style.display = "none";
   inputEntrarSala.style.display = "none";
+}
+
+
+function entrarSala() {
+  socket.emit("entrarSala", Number(inputEntrarSala.value), meuId.id);
+  socket.on("salaCheia", (valor, sala) => {
+    if (valor === true) {
+      salacheia.textContent = `A sala ${sala} está cheia. Insira outra sala ou criar uma.`;
+      inputEntrarSala.value = "";
+      setTimeout(() => {
+        salacheia.textContent = ``;
+      }, 6 * 1000);
+    }
+    else if (valor === false) {
+      inputEntrarSala.style.display = "none";
+      btnEntrarSala.style.display = "none";
+    }
+    else if (valor == 'inexistente') {
+      salacheia.textContent = `A sala ${sala} não existe. Insira outra sala ou criar uma.`;
+      inputEntrarSala.value = "";
+      setTimeout(() => {
+        salacheia.textContent = ``;
+      }, 6 * 1000);
+    }
+  });
 }
 
 // Recebe informação do jogador contra
@@ -147,7 +160,7 @@ BotaoStart.addEventListener("click", () => {
     socket.emit("jogadores", listaJogadores, meuId.id);
     spanJogadorVez.textContent = listaJogadores.jogador1.nome;
     alerta.textContent = ``;
-    socket.emit("player", inputSeuNome.value);
+    socket.emit("player", inputSeuNome.value, meuId.id);
     botaoConfirmaNome.style.display = "none";
     containerTabuleiro.style.display = "grid";
   }
@@ -310,3 +323,6 @@ function validaNome() {
 }
 
 
+socket.on('teste', dat => {
+  console.log(dat)
+})

@@ -109,26 +109,40 @@ io.on("connection", (socket) => {
   });
 
   // Escuta e direciona o cliente à sala existente
-  socket.on("entrarSala", (salaEntrar) => {
-    // Verificar o número de usuários na sala
-    const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
+  socket.on("entrarSala", (salaEntrar, id) => {
 
-    if (!usuariosNaSala || usuariosNaSala.size < 2) {
-      socket.join(salaEntrar);
-      if (!usuariosPorSala[salaEntrar]) {
-        usuariosPorSala[salaEntrar] = [];
+
+
+      // Verificar o número de usuários na sala
+      const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
+
+      if (!usuariosNaSala || usuariosNaSala.size < 2) {
+        if (!usuariosPorSala[salaEntrar]) {
+          socket.emit("salaCheia", "inexistente", salaEntrar);
+        } else {
+          socket.join(salaEntrar);
+          console.log(salaEntrar)
+          usuariosPorSala[salaEntrar].push(userId);
+
+          usuariosConectados.push(userId);
+          socket.emit("salaCheia", false);
+
+          
+          console.log(usuariosPorSala)
+          io.emit('teste', usuariosPorSala)
+        }
+      } else {
+        socket.emit("salaCheia", true, salaEntrar);
       }
 
-      usuariosPorSala[salaEntrar].push(userId);
+      // Envia para todos os clientes a lista de usuários conectados
+      io.to(salaEntrar).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
 
-      usuariosConectados.push(userId);
-      socket.emit("salaCheia", false);
-    } else {
-      socket.emit("salaCheia", true, salaEntrar);
-    }
 
-    // Envia para todos os clientes a lista de usuários conectados
-    io.to(salaUsuario).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
+
+
+
+    
   });
 
   // Captura e envia nome do jogador
