@@ -14,12 +14,6 @@ app.get("/", (req, res) => {
 
 // Variáveis globais
 
-let container = [
-  ["", "", ""],
-  ["", "", ""],
-  ["", "", ""],
-];
-
 let tabuleiro = [
   ["", "", ""],
   ["", "", ""],
@@ -210,9 +204,7 @@ io.on("connection", (socket) => {
       if (usuarios.includes(id)) {
         usuariosPorSala[sala].push(tabuleiro)
 
-        socket.emit("tabuleiro", usuariosPorSala)
-
-        let tabuleiroAtualizado = usuariosPorSala[sala][4]
+        
 
         let listaJogadores = usuariosPorSala[sala][2]
 
@@ -228,16 +220,15 @@ io.on("connection", (socket) => {
         const separadorColuna = jg.posicao.split(".");
         const linha = separadorColuna[0];
         const coluna = separadorColuna[1];
+        usuariosPorSala[sala][4][linha][coluna] = jg.letra;
 
-        container[linha][coluna] = jg.letra;
-        tabuleiroAtualizado[linha][coluna] = jg.letra;
-        console.log(tabuleiroAtualizado)
+        console.log(usuariosPorSala[sala][4])
 
 
-        verificarCampeao(tabuleiroAtualizado);
-        let vencedor = verificarCampeao(tabuleiroAtualizado);
+        verificarCampeao(usuariosPorSala[sala][4]);
+        let vencedor = verificarCampeao(usuariosPorSala[sala][4]);
 
-        io.to(Number(sala)).emit("jogada", jg, tabuleiroAtualizado, vencedor, sala);
+        io.to(Number(sala)).emit("jogada", jg, usuariosPorSala[sala][4], vencedor, usuariosPorSala);
 
       }
     });

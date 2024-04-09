@@ -48,7 +48,6 @@ function entrarSala() {
     } else if (valor === false) {
       inputEntrarSala.style.display = "none";
       btnEntrarSala.style.display = "none";
-      console.log(valor);
     }
   });
 }
@@ -65,8 +64,6 @@ socket.on("listaUsuarios", (lista) => {
   } else {
     inputNomeOponente.placeholder = `Aguardando oponente...`;
   }
-  console.log("usuarios Conectados");
-  console.log(usuariosConectados);
 });
 
 // Informa Id do jogador atual
@@ -83,7 +80,6 @@ function criarSala() {
   let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
   socket.emit('sala', sala)
   socket.emit(`criarSala`, sala, meuId.id);
-  console.log("Sala atual: " + sala);
   btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
   btnEntrarSala.style.display = "none";
   inputEntrarSala.style.display = "none";
@@ -94,7 +90,6 @@ let nomeOponente = "";
 socket.on("player", (play) => {
   inputNomeOponente.value = play;
   nomeOponente = play;
-  console.log(play);
 });
 
 // Clique Confirmar o nome
@@ -112,7 +107,6 @@ botaoConfirmaNome.addEventListener("click", () => {
 
 socket.on("jogador", (inf) => {
   autorizacao = inf;
-  console.log(autorizacao)
 
   if (autorizacao == "autorizado") {
     containerTabuleiro.style.display = "grid";
@@ -129,7 +123,6 @@ function defineNomeParaCadaId() {
     listaJogadores.jogador1.nome = nomeOponente;
 
   }
-  console.log(listaJogadores)
 }
 
 inputSeuNome.addEventListener("keyup", validaNome);
@@ -162,15 +155,15 @@ BotaoStart.addEventListener("click", () => {
 
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
-socket.on("jogada", (jg, tab, vencedor, salaUsuario) => {
+socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
+
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
-  console.log(tab)
-  console.log(jogadaDaVez)
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
-  console.log("sala usuario")
-  console.log(salaUsuario)
+
+  console.log("tabuleirooooooooooo")
+  console.log(salaPorusuario)
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
@@ -308,7 +301,6 @@ function validaNome() {
   if (inputSeuNome.value.length < 2) {
     botaoConfirmaNome.style.display = "none";
   } else if (usuariosConectados.length < 2) {
-    console.log(usuariosConectados)
     botaoConfirmaNome.style.display = "none";
     alerta.textContent = `Aguarde até que o seu oponente se conecte!`;
   } else {
@@ -317,9 +309,4 @@ function validaNome() {
   }
 }
 
-
-socket.on("tabuleiro", dat => {
-  console.log("tabuleirooooooooooo")
-  console.log(dat)
-})
 
