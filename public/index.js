@@ -24,19 +24,17 @@ let listaJogadores = {
   jogador1: {
     nome: "",
     id: "",
-    letra: "X"
+    letra: "X",
   },
   jogador2: {
     nome: "",
     id: "",
-    letra: "O"
+    letra: "O",
   },
 };
 
 btnCriarSala.addEventListener("click", criarSala);
 btnEntrarSala.addEventListener("click", entrarSala);
-
-
 
 let usuariosConectados = [];
 socket.on("listaUsuarios", (lista) => {
@@ -62,23 +60,23 @@ socket.on("seuId", (id) => {
   meuId.id = id;
 });
 
-
-
 function criarSala() {
   let sala = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-  socket.emit('sala', sala)
+  socket.emit("sala", sala);
   socket.emit(`criarSala`, sala, meuId.id);
   btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
   btnEntrarSala.style.display = "none";
   inputEntrarSala.style.display = "none";
+  inputSeuNome.style.display = 'flex'
+  inputNomeOponente.style.display = 'flex'
+  BotaoStart.style.display = 'flex'
 }
-
 
 function entrarSala() {
   if (inputEntrarSala.value > 2) {
     socket.emit("entrarSala", Number(inputEntrarSala.value), meuId.id);
   }
-  
+
   socket.on("salaCheia", (valor, sala) => {
     if (valor === true) {
       salacheia.textContent = `A sala ${sala} está cheia. Insira outra sala ou criar uma.`;
@@ -86,13 +84,14 @@ function entrarSala() {
       setTimeout(() => {
         salacheia.textContent = ``;
       }, 6 * 1000);
-    }
-    else if (valor === false) {
+    } else if (valor === false) {
       inputEntrarSala.style.display = "none";
       btnEntrarSala.style.display = "none";
-      btnCriarSala.textContent = `CONECTADO - SALA ${sala}`
-    }
-    else if (valor == 'inexistente') {
+      btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
+      inputSeuNome.style.display = 'flex'
+      inputNomeOponente.style.display = 'flex'
+      BotaoStart.style.display = 'flex'
+    } else if (valor == "inexistente") {
       salacheia.textContent = `A sala ${sala} não existe. Insira outra sala ou criar uma.`;
       inputEntrarSala.value = "";
       setTimeout(() => {
@@ -124,7 +123,7 @@ botaoConfirmaNome.addEventListener("click", () => {
 
 socket.on("jogador", (inf) => {
   autorizacao = inf;
-  console.log(autorizacao)
+  console.log(autorizacao);
 
   if (autorizacao.length == 2) {
     containerTabuleiro.style.display = "grid";
@@ -139,7 +138,6 @@ function defineNomeParaCadaId() {
   } else if (listaJogadores.jogador2.id === meuId.id) {
     listaJogadores.jogador2.nome = inputSeuNome.value;
     listaJogadores.jogador1.nome = nomeOponente;
-
   }
 }
 
@@ -173,7 +171,6 @@ BotaoStart.addEventListener("click", () => {
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
 socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
-
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
@@ -184,10 +181,10 @@ socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
       const index = indexLinha * 3 + indexColuna;
       spanTabuleiro[index].textContent = valor;
 
-      if(spanTabuleiro[index].textContent == "X") {
-        spanTabuleiro[index].style.color = "#66a385"
+      if (spanTabuleiro[index].textContent == "X") {
+        spanTabuleiro[index].style.color = "#66a385";
       } else {
-        spanTabuleiro[index].style.color = "#c46627"
+        spanTabuleiro[index].style.color = "#c46627";
       }
 
       if (spanTabuleiro[index].textContent !== "") {
@@ -241,7 +238,7 @@ function ganhador(element) {
     desabilitaTabela();
     element = "";
     ContainerMsgVencedor.style.display = "none";
-  } else if (element === 'V') {
+  } else if (element === "V") {
     spanMsgVencedor.textContent = `Deu velha`;
     BotaoNovoJogo.style.display = "flex";
     desabilitaTabela();
@@ -323,8 +320,7 @@ function validaNome() {
   }
 }
 
-
-socket.on('teste', (autorizad, porSala) => {
-  console.log(autorizad)
-  console.log(porSala)
-})
+socket.on("teste", (autorizad, porSala) => {
+  console.log(autorizad);
+  console.log(porSala);
+});
