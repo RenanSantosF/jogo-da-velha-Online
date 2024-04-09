@@ -110,39 +110,25 @@ io.on("connection", (socket) => {
 
   // Escuta e direciona o cliente à sala existente
   socket.on("entrarSala", (salaEntrar, id) => {
+    // Verificar o número de usuários na sala
+    const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
 
-
-
-      // Verificar o número de usuários na sala
-      const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
-
-      if (!usuariosNaSala || usuariosNaSala.size < 2) {
-        if (!usuariosPorSala[salaEntrar]) {
-          socket.emit("salaCheia", "inexistente", salaEntrar);
-        } else {
-          socket.join(salaEntrar);
-          console.log(salaEntrar)
-          usuariosPorSala[salaEntrar].push(userId);
-
-          usuariosConectados.push(userId);
-          socket.emit("salaCheia", false);
-
-          
-          console.log(usuariosPorSala)
-          io.emit('teste', usuariosPorSala)
-        }
+    if (!usuariosNaSala || usuariosNaSala.size < 2) {
+      if (!usuariosPorSala[salaEntrar]) {
+        socket.emit("salaCheia", "inexistente", salaEntrar);
       } else {
-        socket.emit("salaCheia", true, salaEntrar);
+        socket.join(salaEntrar);
+        usuariosPorSala[salaEntrar].push(userId);
+
+        usuariosConectados.push(userId);
+        socket.emit("salaCheia", false, salaEntrar);
       }
+    } else {
+      socket.emit("salaCheia", true, salaEntrar);
+    }
 
-      // Envia para todos os clientes a lista de usuários conectados
-      io.to(salaEntrar).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
-
-
-
-
-
-    
+    // Envia para todos os clientes a lista de usuários conectados
+    io.to(salaEntrar).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
   });
 
   // Captura e envia nome do jogador
@@ -180,10 +166,12 @@ io.on("connection", (socket) => {
       if (usuarios.includes(id)) {
         usuariosAutorizados.push(info);
 
-        if (usuariosAutorizados) {
-          io.to(Number(sala)).emit("jogador", "autorizado");
-          // usuariosAutorizados = [];
+        socket.emit('teste', usuariosAutorizados, usuariosPorSala)
 
+        if (usuariosAutorizados.length == 2) {
+          io.to(Number(sala)).emit("jogador", usuariosAutorizados);
+
+          usuariosAutorizados = [];
           if (usuariosPorSala[sala][4]) {
             usuariosPorSala[sala][4] = {
               sala: sala,
@@ -213,8 +201,6 @@ io.on("connection", (socket) => {
             ],
           };
         }
-
-        console.log(jg);
 
         let listaTabuleiro = usuariosPorSala[sala][4];
         let listaJogadores = usuariosPorSala[sala][2];

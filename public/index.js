@@ -17,7 +17,7 @@ const BotaoNovoJogo = document.getElementById("novoJogo");
 const ContainerMsgVencedor = document.getElementById("vez");
 const alerta = document.getElementById("alerta");
 const salacheia = document.getElementById("salacheia");
-let autorizacao = "";
+let autorizacao = [];
 let statusContainerTabuleiro = "";
 
 let listaJogadores = {
@@ -75,7 +75,10 @@ function criarSala() {
 
 
 function entrarSala() {
-  socket.emit("entrarSala", Number(inputEntrarSala.value), meuId.id);
+  if (inputEntrarSala.value > 2) {
+    socket.emit("entrarSala", Number(inputEntrarSala.value), meuId.id);
+  }
+  
   socket.on("salaCheia", (valor, sala) => {
     if (valor === true) {
       salacheia.textContent = `A sala ${sala} está cheia. Insira outra sala ou criar uma.`;
@@ -87,6 +90,7 @@ function entrarSala() {
     else if (valor === false) {
       inputEntrarSala.style.display = "none";
       btnEntrarSala.style.display = "none";
+      btnCriarSala.textContent = `CONECTADO - SALA ${sala}`
     }
     else if (valor == 'inexistente') {
       salacheia.textContent = `A sala ${sala} não existe. Insira outra sala ou criar uma.`;
@@ -120,10 +124,11 @@ botaoConfirmaNome.addEventListener("click", () => {
 
 socket.on("jogador", (inf) => {
   autorizacao = inf;
+  console.log(autorizacao)
 
-  if (autorizacao == "autorizado") {
+  if (autorizacao.length == 2) {
     containerTabuleiro.style.display = "grid";
-    autorizacao = "";
+    autorizacao = [];
   }
 });
 
@@ -162,7 +167,6 @@ BotaoStart.addEventListener("click", () => {
     alerta.textContent = ``;
     socket.emit("player", inputSeuNome.value, meuId.id);
     botaoConfirmaNome.style.display = "none";
-    containerTabuleiro.style.display = "grid";
   }
 });
 
@@ -174,9 +178,6 @@ socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
   ganhador(vencedorPartida);
-
-  console.log("tabuleirooooooooooo")
-  console.log(salaPorusuario)
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
@@ -323,6 +324,7 @@ function validaNome() {
 }
 
 
-socket.on('teste', dat => {
-  console.log(dat)
+socket.on('teste', (autorizad, porSala) => {
+  console.log(autorizad)
+  console.log(porSala)
 })
