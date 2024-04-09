@@ -13,15 +13,11 @@ app.get("/", (req, res) => {
 });
 
 // Variáveis globais
-let container = [
-  ["", "", ""],
-  ["", "", ""],
-  ["", "", ""],
-];
-let jogadores = "";
+
+let usuariosPorSala = {};
 let usuariosConectados = [];
 let usuariosAutorizados = [];
-let minhaSala = 0;
+let salaUsuario = null;
 
 function verificarCampeao(element) {
   let vencedor = "";
@@ -73,6 +69,20 @@ function verificarCampeao(element) {
     element[1][1] == element[2][0]
   ) {
     vencedor = element[0][2];
+  } else {
+    if (
+      element[0][0] !== "" &&
+      element[0][1] !== "" &&
+      element[0][2] !== "" &&
+      element[1][0] !== "" &&
+      element[1][1] !== "" &&
+      element[1][2] !== "" &&
+      element[2][0] !== "" &&
+      element[2][1] !== "" &&
+      element[2][2] !== ""
+    ) {
+      vencedor = "V";
+    }
   }
   else {
     if (
@@ -96,39 +106,58 @@ function verificarCampeao(element) {
 // Evento de conexão de um cliente
 io.on("connection", (socket) => {
   // Escuta e cria a sala e adiciona o usuário
-  socket.on("criarSala", (salaCriada) => {
+  socket.on("criarSala", (salaCriada, meuId) => {
     socket.join(salaCriada);
     minhaSala = salaCriada;
-    console.log("sala criada" + salaCriada);
+    usuariosConectados.push(userId);
 
-    // Captura e armazena usuarios conectados
-    console.log("Usuário conectado =>", userId);
-    if (usuariosConectados.length <2) {
-      usuariosConectados.push(userId);
+    if (!usuariosPorSala[salaCriada]) {
+      usuariosPorSala[salaCriada] = [];
     }
+
+    usuariosPorSala[salaCriada].push(userId);
+
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(meuId)) {
+        salaUsuario = Number(sala);
+      }
+    });
   });
 
-  
   // Escuta e direciona o cliente à sala existente
-  socket.on("entrarSala", (salaEntrar) => {
-    
-
+  socket.on("entrarSala", (salaEntrar, id) => {
     // Verificar o número de usuários na sala
     const usuariosNaSala = io.sockets.adapter.rooms.get(salaEntrar);
 
-    console.log("Integrantes da sala:", usuariosNaSala);
-
     if (!usuariosNaSala || usuariosNaSala.size < 2) {
+      if (!usuariosPorSala[salaEntrar]) {
+        socket.emit("salaCheia", "inexistente", salaEntrar);
+      } else {
         socket.join(salaEntrar);
-        minhaSala = salaEntrar;
+        usuariosPorSala[salaEntrar].push(userId);
+
         usuariosConectados.push(userId);
-        socket.emit('salaCheia', false);
+        socket.emit("salaCheia", false, salaEntrar);
+      }
     } else {
-        socket.emit('salaCheia', true, salaEntrar);
+      socket.emit("salaCheia", true, salaEntrar);
     }
 
     // Envia para todos os clientes a lista de usuários conectados
-    io.to(minhaSala).emit("listaUsuarios", usuariosConectados);
+    io.to(salaEntrar).emit("listaUsuarios", usuariosPorSala[salaEntrar]);
+  });
+
+  // Captura e envia nome do jogador
+  socket.on("player", (play, meuId) => {
+    function informaSala(element) {
+      Object.entries(element).forEach(([sala, usuarios]) => {
+        if (usuarios.includes(meuId)) {
+          salaUsuario = Number(sala);
+          socket.to(salaUsuario).emit("player", play);
+        }
+      });
+    }
+    informaSala(usuariosPorSala);
   });
 
   // Gera ID único para cada usuário
@@ -139,72 +168,97 @@ io.on("connection", (socket) => {
   socket.emit("seuId", userId);
 
   // Recebe jogadores do frontend e armazena na variável
-  socket.on("jogadores", (date) => {
-    jogadores = date;
+  socket.on("jogadores", (date, id) => {
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+        usuariosPorSala[sala].push(date);
+      }
+    });
   });
 
   // Verifica se está autorizado a começar
-  socket.on("jogador", (info) => {
-    usuariosAutorizados.push(info);
-    console.log("usuarios autorizados");
-    console.log(usuariosAutorizados);
-    if (usuariosAutorizados[0] === usuariosAutorizados[1]) {
-      io.to(minhaSala).emit("jogador", "autorizado");
-      usuariosAutorizados = [];
-      container = [
-        ["", "", ""],
-        ["", "", ""],
-        ["", "", ""],
-      ];
-    }
+  socket.on("jogador", (info, id) => {
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+        usuariosAutorizados.push(info);
+
+        socket.emit('teste', usuariosAutorizados, usuariosPorSala)
+
+        if (usuariosAutorizados.length == 2) {
+          io.to(Number(sala)).emit("jogador", usuariosAutorizados);
+
+          usuariosAutorizados = [];
+          if (usuariosPorSala[sala][4]) {
+            usuariosPorSala[sala][4] = {
+              sala: sala,
+              tabuleiro: [
+                ["", "", ""],
+                ["", "", ""],
+                ["", "", ""],
+              ],
+            };
+          }
+        }
+      }
+    });
   });
 
   // Captura cada jogada e alterna jogador
-  socket.on("jogada", (jg) => {
-    if (jg.jogador === jogadores.jogador1.nome) {
-      jg.jogador = jogadores.jogador2.nome;
-      jg.letra = jogadores.jogador2.letra;
-    } else {
-      jg.jogador = jogadores.jogador1.nome;
-      jg.letra = jogadores.jogador1.letra;
-    }
+  socket.on("jogada", (jg, id) => {
+    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      if (usuarios.includes(id)) {
+        if (!usuariosPorSala[sala][4]) {
+          usuariosPorSala[sala][4] = {
+            sala: sala,
+            tabuleiro: [
+              ["", "", ""],
+              ["", "", ""],
+              ["", "", ""],
+            ],
+          };
+        }
 
-    const separadorColuna = jg.posicao.split(".");
-    const linha = separadorColuna[0];
-    const coluna = separadorColuna[1];
+        let listaTabuleiro = usuariosPorSala[sala][4];
+        let listaJogadores = usuariosPorSala[sala][2];
 
-    container[linha][coluna] = jg.letra;
+        if (jg.jogador === listaJogadores.jogador1.nome) {
+          jg.jogador = listaJogadores.jogador2.nome;
+          jg.letra = listaJogadores.jogador2.letra;
+        } else {
+          jg.jogador = listaJogadores.jogador1.nome;
+          jg.letra = listaJogadores.jogador1.letra;
+        }
 
-    verificarCampeao(container);
-    let vencedor = verificarCampeao(container);
+        const separadorColuna = jg.posicao.split(".");
+        const linha = separadorColuna[0];
+        const coluna = separadorColuna[1];
+        listaTabuleiro.tabuleiro[linha][coluna] = jg.letra;
 
-    io.to(minhaSala).emit("jogada", jg, container, vencedor);
-  });
+        verificarCampeao(listaTabuleiro.tabuleiro);
+        let vencedor = verificarCampeao(listaTabuleiro.tabuleiro);
 
-  // Captura e envia nome do jogador
-  socket.on("player", (play) => {
-    console.log("minha sala " + minhaSala);
-
-    socket.to(minhaSala).emit("player", play);
+        io.to(Number(sala)).emit(
+          "jogada",
+          jg,
+          listaTabuleiro.tabuleiro,
+          vencedor,
+          usuariosPorSala
+        );
+      }
+    });
   });
 
   // Evento de desconexão de um cliente
   socket.on("disconnect", () => {
-    console.log("Um cliente se desconectou");
+    // console.log("Um cliente se desconectou");
 
     // Remove do array o ID do usuário desconectado
     usuariosConectados = usuariosConectados.filter(
       (usuario) => usuario !== userId
     );
 
-    // Lista atualizada de usuários conectados
-    console.log(
-      "Lista Atualizada - Usuarios conectados => ",
-      usuariosConectados
-    );
-
     // Envia para todos os clientes a lista de usuários conectados
-    io.to(minhaSala).emit("listaUsuarios", usuariosConectados);
+    io.to(salaUsuario).emit("listaUsuarios", usuariosConectados);
   });
 });
 
