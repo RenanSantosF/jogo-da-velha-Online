@@ -9,6 +9,7 @@
   tap-highlight-color: transparent;
 }
 
+/* Grid tabuleiro */
 #container {
   display: grid;
   grid-template-columns: 7rem 7rem 7rem;
@@ -30,7 +31,7 @@
   justify-content: center;
 }
 
-.container {
+.page {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -61,7 +62,6 @@
 .titulo {
   font-weight: bold;
   font-size: 48px;
-  font-weight: bold;
   background: linear-gradient(#3e6145 35%, #6b6b6b);
   margin: 10px;
   -webkit-background-clip: text;
@@ -84,7 +84,6 @@
   text-decoration: underline;
   font-weight: bold;
   background: linear-gradient(135deg, #a58919, #c46627);
-
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -99,6 +98,7 @@
   outline: none;
   transition: border-color 0.3s;
 }
+
 .inputplayer:focus {
   border-color: #5c9478;
 }
@@ -116,7 +116,6 @@
 .Botao {
   font-weight: bold;
   background-color: #14633b;
-  /* background-color: #6b6b6b; */
   border: none;
   color: white;
   padding: 15px 32px;
@@ -173,44 +172,6 @@
   animation: moveButton 1s infinite alternate;
 }
 
-@keyframes moveButton {
-  from {
-    transform: scale(0.95);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-.Botao:hover {
-  background-color: #66a385;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-.disable {
-  pointer-events: none;
-}
-
-.fim {
-  pointer-events: none;
-}
-
-#item1 {
-  border-top-left-radius: 2rem;
-}
-#item3 {
-  border-top-right-radius: 2rem;
-}
-#item7 {
-  border-bottom-left-radius: 2rem;
-}
-#item9 {
-  border-bottom-right-radius: 2rem;
-}
-
 #btnCriarSala {
   font-weight: bold;
   background-color: #536e61;
@@ -256,3 +217,42 @@
   outline: none;
   transition: border-color 0.3s;
 }
+
+@keyframes moveButton {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.Botao:hover {
+  background-color: #66a385;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.disable {
+  pointer-events: none;
+}
+
+.fim {
+  pointer-events: none;
+}
+
+#item1 {
+  border-top-left-radius: 2rem;
+}
+#item3 {
+  border-top-right-radius: 2rem;
+}
+#item7 {
+  border-bottom-left-radius: 2rem;
+}
+#item9 {
+  border-bottom-right-radius: 2rem;
+}
+

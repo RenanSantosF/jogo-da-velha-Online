@@ -1,8 +1,8 @@
-const { info } = require("console");
 const express = require("express");
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
+const verificarCampeao = require("./verificarCampeao");
 
 // Middleware para servir arquivos estáticos
 app.use(express.static("public"));
@@ -16,77 +16,8 @@ app.get("/", (req, res) => {
 
 let usuariosPorSala = {};
 let usuariosConectados = [];
-let usuariosAutorizados = [];
+let usuariosAutorizados = {};
 let salaUsuario = null;
-
-function verificarCampeao(element) {
-  let vencedor = "";
-  if (
-    element[0][0] != "" &&
-    element[0][0] == element[0][1] &&
-    element[0][1] == element[0][2]
-  ) {
-    vencedor = element[0][0];
-  } else if (
-    element[1][0] &&
-    element[1][0] == element[1][1] &&
-    element[1][1] == element[1][2]
-  ) {
-    vencedor = element[1][0];
-  } else if (
-    element[2][0] &&
-    element[2][0] == element[2][1] &&
-    element[2][1] == element[2][2]
-  ) {
-    vencedor = element[2][0];
-  } else if (
-    element[0][0] &&
-    element[0][0] == element[1][0] &&
-    element[1][0] == element[2][0]
-  ) {
-    vencedor = element[0][0];
-  } else if (
-    element[0][1] &&
-    element[0][1] == element[1][1] &&
-    element[1][1] == element[2][1]
-  ) {
-    vencedor = element[0][1];
-  } else if (
-    element[0][2] &&
-    element[0][2] == element[1][2] &&
-    element[1][2] == element[2][2]
-  ) {
-    vencedor = element[0][2];
-  } else if (
-    element[0][0] &&
-    element[0][0] == element[1][1] &&
-    element[1][1] == element[2][2]
-  ) {
-    vencedor = element[0][0];
-  } else if (
-    element[0][2] &&
-    element[0][2] == element[1][1] &&
-    element[1][1] == element[2][0]
-  ) {
-    vencedor = element[0][2];
-  }
-  else {
-    if (
-      element[0][0] !== "" &&
-      element[0][1] !== "" &&
-      element[0][2] !== "" &&
-      element[1][0] !== "" &&
-      element[1][1] !== "" &&
-      element[1][2] !== "" &&
-      element[2][0] !== "" &&
-      element[2][1] !== "" &&
-      element[2][2] !== ""
-    ) {
-      vencedor = "V";
-    }
-  }
-  return vencedor;
-}
 
 // Evento de conexão de um cliente
 io.on("connection", (socket) => {
@@ -164,15 +95,20 @@ io.on("connection", (socket) => {
   // Verifica se está autorizado a começar
   socket.on("jogador", (info, id) => {
     Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+      let inSala = Number(sala)
       if (usuarios.includes(id)) {
-        usuariosAutorizados.push(info);
+        if (!usuariosAutorizados[inSala]) {
+          usuariosAutorizados[inSala] = []
+        }
+        usuariosAutorizados[inSala].push(info)
+        io.to(inSala).emit('teste', usuariosAutorizados, inSala)
+        console.log(usuariosAutorizados)
 
-        socket.emit('teste', usuariosAutorizados, usuariosPorSala)
+        if (usuariosAutorizados[inSala].length == 2) {
 
-        if (usuariosAutorizados.length == 2) {
-          io.to(Number(sala)).emit("jogador", usuariosAutorizados);
-
-          usuariosAutorizados = [];
+          
+          io.to(inSala).emit("jogador", usuariosAutorizados[inSala]);
+          usuariosAutorizados[inSala] = []
           if (usuariosPorSala[sala][4]) {
             usuariosPorSala[sala][4] = {
               sala: sala,
