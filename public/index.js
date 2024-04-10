@@ -1,3 +1,4 @@
+// Importa as dependências
 var socket = io();
 import validaNome from "./scripts/validaNome.js";
 import reabilitaTabela from "./scripts/reabilitaTabela.js";
@@ -11,7 +12,6 @@ import criarSala from "./scripts/criarSala.js";
 import entrarSala from "./scripts/entrarSala.js";
 
 //  Inicia variáveis
-
 const btnCriarSala = document.getElementById("btnCriarSala");
 const btnEntrarSala = document.getElementById("btnEntrarSala");
 const inputEntrarSala = document.getElementById("inputEntrarSala");
@@ -31,6 +31,11 @@ let autorizacao = [];
 let statusContainerTabuleiro = "";
 let nomeOponente = "";
 
+let meuId = {
+  nome: "",
+  id: "",
+};
+
 let listaJogadores = {
   jogador1: {
     nome: "",
@@ -45,10 +50,29 @@ let listaJogadores = {
 };
 
 btnCriarSala.addEventListener("click", () => {
-  criarSala(socket, meuId, btnCriarSala, btnEntrarSala, inputEntrarSala, inputSeuNome, inputNomeOponente, BotaoStart)
+  criarSala(
+    socket,
+    meuId,
+    btnCriarSala,
+    btnEntrarSala,
+    inputEntrarSala,
+    inputSeuNome,
+    inputNomeOponente,
+    BotaoStart
+  );
 });
 btnEntrarSala.addEventListener("click", () => {
-  entrarSala(socket, inputNomeOponente, BotaoStart, inputEntrarSala, meuId, btnEntrarSala, salacheia, btnCriarSala, inputSeuNome)
+  entrarSala(
+    socket,
+    inputNomeOponente,
+    BotaoStart,
+    inputEntrarSala,
+    meuId,
+    btnEntrarSala,
+    salacheia,
+    btnCriarSala,
+    inputSeuNome
+  );
 });
 
 let usuariosConectados = [];
@@ -65,12 +89,13 @@ socket.on("listaUsuarios", (lista) => {
   }
 });
 
-// Informa Id do jogador atual
-let meuId = {
-  nome: inputSeuNome.textContent,
-  id: "",
+let jogadaDaVez = {
+  posicao: "",
+  letra: listaJogadores.jogador1.letra,
+  jogador: listaJogadores.jogador1.nome,
 };
 
+// Recebe ID
 socket.on("seuId", (id) => {
   meuId.id = id;
 });
@@ -81,7 +106,6 @@ socket.on("player", (play) => {
   nomeOponente = play;
 });
 
-// Clique Confirmar o nome
 botaoConfirmaNome.addEventListener("click", () => {
   if (usuariosConectados.length < 2) {
     validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta);
@@ -92,8 +116,10 @@ botaoConfirmaNome.addEventListener("click", () => {
   }
 });
 
+// Verifica autorização para iniciar o jogo
 socket.on("jogador", (inf) => {
   autorizacao = inf;
+  console.log('salaaaa')
   console.log(autorizacao);
 
   if (autorizacao.length == 2) {
@@ -106,12 +132,6 @@ inputSeuNome.addEventListener("keyup", () => {
   validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta);
 });
 
-let jogadaDaVez = {
-  posicao: "",
-  letra: listaJogadores.jogador1.letra,
-  jogador: listaJogadores.jogador1.nome,
-};
-
 // Clique no botão Iniciar jogo
 BotaoStart.addEventListener("click", () => {
   if (nomeOponente.length < 2) {
@@ -121,23 +141,24 @@ BotaoStart.addEventListener("click", () => {
   } else {
     bloqueiaRodada(inputSeuNome, spanTabuleiro);
     defineNomeParaCadaId(listaJogadores, meuId, inputSeuNome, nomeOponente);
-    iniciaJogo(spanTabuleiro, clique, BotaoStart, ContainerMsgVencedor);
-    socket.emit("jogador", "autorizado", meuId.id);
-    socket.emit("jogadores", listaJogadores, meuId.id);
-    spanJogadorVez.textContent = listaJogadores.jogador1.nome;
-    alerta.textContent = ``;
-    socket.emit("player", inputSeuNome.value, meuId.id);
-    botaoConfirmaNome.style.display = "none";
+    iniciaJogo(spanTabuleiro, clique, BotaoStart, ContainerMsgVencedor, socket, meuId, listaJogadores, spanJogadorVez, alerta, botaoConfirmaNome, inputSeuNome);
   }
 });
 
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
-socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
+socket.on("jogada", (jg, tab, vencedor) => {
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
-  ganhador(ContainerMsgVencedor, vencedorPartida, listaJogadores, spanMsgVencedor, BotaoNovoJogo, spanTabuleiro);
+  ganhador(
+    ContainerMsgVencedor,
+    vencedorPartida,
+    listaJogadores,
+    spanMsgVencedor,
+    BotaoNovoJogo,
+    spanTabuleiro
+  );
 
   statusContainerTabuleiro.forEach((linha, indexLinha) => {
     linha.forEach((valor, indexColuna) => {
@@ -164,7 +185,21 @@ socket.on("jogada", (jg, tab, vencedor, salaPorusuario) => {
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
-  limpaReiniciarJogo(listaJogadores, btnCriarSala, jogadaDaVez, BotaoStart, spanTabuleiro, nomeOponente, spanJogadorVez, spanMsgVencedor, inputSeuNome, inputNomeOponente, BotaoNovoJogo, botaoConfirmaNome, containerTabuleiro);
+  limpaReiniciarJogo(
+    listaJogadores,
+    btnCriarSala,
+    jogadaDaVez,
+    BotaoStart,
+    spanTabuleiro,
+    nomeOponente,
+    spanJogadorVez,
+    spanMsgVencedor,
+    inputSeuNome,
+    inputNomeOponente,
+    BotaoNovoJogo,
+    botaoConfirmaNome,
+    containerTabuleiro
+  );
 });
 
 function clique(ev) {
@@ -173,7 +208,16 @@ function clique(ev) {
   const regiao = span.dataset.region;
   jogadaDaVez.posicao = regiao;
   // desabilitaRegiao(span);
-  document.addEventListener("click", bloqueiaRodada(inputSeuNome, spanTabuleiro));
+  document.addEventListener(
+    "click",
+    bloqueiaRodada(inputSeuNome, spanTabuleiro)
+  );
 
   socket.emit("jogada", jogadaDaVez, meuId.id);
 }
+
+
+socket.on('teste', (dat, dat2) => {
+  console.log(dat)
+  console.log(dat2)
+})

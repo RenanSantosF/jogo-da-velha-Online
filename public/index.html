@@ -5,49 +5,67 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jogo da Velha</title>
-    <link rel="stylesheet" href="style.css">
-
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
+    <div class="page">
       <div class="container-titulo">
         <h1 class="titulo">Jogo da Velha</h1>
       </div>
-      
+
       <span class="alerta" id="alerta"></span>
       <span class="alerta" id="salacheia"></span>
 
       <div class="container-sala">
         <button id="btnCriarSala">Criar Sala</button>
         <div class="container-entrar-sala">
-          <input id="inputEntrarSala" type="text" placeholder="Entre em uma sala">
+          <input
+            id="inputEntrarSala"
+            type="text"
+            placeholder="Entre em uma sala"
+          />
           <button id="btnEntrarSala">OK</button>
         </div>
-        
       </div>
-      <label for="player1"></label>
       <div class="container-seuNome">
-        <input style="display: none;" class="inputplayer" type="text" id="player1" placeholder="Insira um nome" value="" />
-        <button style="display: none;" id="confirmarNome">OK</button>
+        <input
+          style="display: none"
+          class="inputplayer"
+          type="text"
+          id="player1"
+          placeholder="Insira um nome"
+          value=""
+        />
+        <button style="display: none" id="confirmarNome">OK</button>
       </div>
-      
-      <label for="player2"></label>
-      <input style="display: none;" class="inputplayer player2" type="text" id="player2" disabled placeholder="Aguardando jogador..." value="" />
 
-      <button style="display: none;" id="start" class="Botao">Começar!</button>
+      <input
+        style="display: none"
+        class="inputplayer player2"
+        type="text"
+        id="player2"
+        disabled
+        placeholder="Aguardando jogador..."
+        value=""
+      />
+
+      <button style="display: none" id="start" class="Botao">Começar!</button>
 
       <div class="container-vez">
-        <h2 style="display: none;" id="vez">Vez de: <span id="turnPlayer"></span></h2>
-        
+        <h2 style="display: none" id="vez">
+          Vez de: <span id="turnPlayer"></span>
+        </h2>
       </div>
-      
+
       <span id="venceu"></span>
 
       <div class="container-botaoReiniciar">
-        <button class="botaoReiniciar" style="display: none;" id="novoJogo">Novo Jogo</button>
+        <button class="botaoReiniciar" style="display: none" id="novoJogo">
+          Novo Jogo
+        </button>
       </div>
 
-      <section style="display: none;" id="container">
+      <section style="display: none" id="container">
         <span id="item1" class="cursor-pointer" data-region="0.0"></span>
         <span id="item2" class="cursor-pointer" data-region="0.1"></span>
         <span id="item3" class="cursor-pointer" data-region="0.2"></span>
@@ -58,7 +76,6 @@
         <span id="item8" class="cursor-pointer" data-region="2.1"></span>
         <span id="item9" class="cursor-pointer" data-region="2.2"></span>
       </section>
-  
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
