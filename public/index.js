@@ -119,8 +119,6 @@ botaoConfirmaNome.addEventListener("click", () => {
 // Verifica autorização para iniciar o jogo
 socket.on("jogador", (inf) => {
   autorizacao = inf;
-  console.log('salaaaa')
-  console.log(autorizacao);
 
   if (autorizacao.length == 2) {
     containerTabuleiro.style.display = "grid";
@@ -220,9 +218,3 @@ function clique(ev) {
 
   socket.emit("jogada", jogadaDaVez, meuId.id);
 }
-
-
-socket.on('teste', (dat, dat2) => {
-  console.log(dat)
-  console.log(dat2)
-})

@@ -3,8 +3,10 @@ export default function criarSala(socket, meuId, btnCriarSala, btnEntrarSala, in
   socket.emit("sala", sala);
   socket.emit(`criarSala`, sala, meuId.id);
   btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
-  btnEntrarSala.style.display = "none";
+  document.getElementById("btnCriarSala").disabled = true;
+  btnCriarSala.style.backgroundColor = '#777777'
   inputEntrarSala.style.display = "none";
+  btnEntrarSala.style.display = "none";
   inputSeuNome.style.display = 'flex'
   inputNomeOponente.style.display = 'flex'
   BotaoStart.style.display = 'flex'

@@ -102,7 +102,6 @@ io.on("connection", (socket) => {
         }
         usuariosAutorizados[inSala].push(info)
         io.to(inSala).emit('teste', usuariosAutorizados, inSala)
-        console.log(usuariosAutorizados)
 
         if (usuariosAutorizados[inSala].length == 2) {
 
