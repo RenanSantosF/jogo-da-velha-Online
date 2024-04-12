@@ -14,6 +14,8 @@ export default function entrarSala(socket, inputNomeOponente, BotaoStart,  input
       inputEntrarSala.style.display = "none";
       btnEntrarSala.style.display = "none";
       btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
+      document.getElementById("btnCriarSala").disabled = true;
+      btnCriarSala.style.backgroundColor = '#777777'
       inputSeuNome.style.display = 'flex'
       inputNomeOponente.style.display = 'flex'
       BotaoStart.style.display = 'flex'
