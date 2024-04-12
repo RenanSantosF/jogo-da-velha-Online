@@ -11,6 +11,7 @@ import defineNomeParaCadaId from "./scripts/defineNomeParaCadaId.js";
 import criarSala from "./scripts/criarSala.js";
 import entrarSala from "./scripts/entrarSala.js";
 
+
 //  Inicia variáveis
 const btnCriarSala = document.getElementById("btnCriarSala");
 const btnEntrarSala = document.getElementById("btnEntrarSala");
@@ -30,6 +31,7 @@ const salacheia = document.getElementById("salacheia");
 let autorizacao = [];
 let statusContainerTabuleiro = "";
 let nomeOponente = "";
+
 
 let meuId = {
   nome: "",
@@ -89,11 +91,14 @@ socket.on("listaUsuarios", (lista) => {
   }
 });
 
+
 let jogadaDaVez = {
   posicao: "",
   letra: listaJogadores.jogador1.letra,
   jogador: listaJogadores.jogador1.nome,
 };
+
+
 
 // Recebe ID
 socket.on("seuId", (id) => {
@@ -122,6 +127,9 @@ socket.on("jogador", (inf) => {
 
   if (autorizacao.length == 2) {
     containerTabuleiro.style.display = "grid";
+    if (spanJogadorVez.textContent == "") {
+      spanJogadorVez.textContent = listaJogadores.jogador1.nome;
+    }
     autorizacao = [];
   }
 });
@@ -149,6 +157,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
+  console.log(jogadaDaVez)
   ganhador(
     ContainerMsgVencedor,
     vencedorPartida,

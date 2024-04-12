@@ -1,3 +1,8 @@
+let index = 1
+
+
+
+
 export default function limpaReiniciarJogo(
   listaJogadores,
   btnCriarSala,
@@ -17,14 +22,12 @@ export default function limpaReiniciarJogo(
     item.textContent = "";
     item.classList.remove("disable");
   });
-  spanJogadorVez.textContent = "";
   spanMsgVencedor.textContent = "";
   BotaoNovoJogo.style.display = "none";
   botaoConfirmaNome.style.display = "none";
   containerTabuleiro.style.display = "none";
   BotaoStart.style.display = "flex";
   reabilitaTabela(spanTabuleiro);
-  jogadaDaVez.jogador = listaJogadores.jogador2.nome;
   btnCriarSala.style.display = "flex";
 }
 
