@@ -1,7 +1,16 @@
 const express = require("express");
 const app = express();
+
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
+// const io = require("socket.io")(http);
+
+const io = require("socket.io")(http, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
+});
+
 const verificarCampeao = require("./verificarCampeao");
 
 // Middleware para servir arquivos estáticos
@@ -13,7 +22,6 @@ app.get("/", (req, res) => {
 });
 
 // Variáveis globais
-
 let usuariosPorSala = {};
 let usuariosConectados = [];
 let usuariosAutorizados = {};
@@ -21,6 +29,7 @@ let salaUsuario = null;
 
 // Evento de conexão de um cliente
 io.on("connection", (socket) => {
+
   // Escuta e cria a sala e adiciona o usuário
   socket.on("criarSala", (salaCriada, meuId) => {
     socket.join(salaCriada);
@@ -188,3 +197,4 @@ const PORT = process.env.PORT || 3001;
 http.listen(PORT, () => {
   console.log(`Servidor ouvindo na porta ${PORT}`);
 });
+
