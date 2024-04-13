@@ -52,6 +52,7 @@ let listaJogadores = {
 };
 
 btnCriarSala.addEventListener("click", () => {
+  somTap()
   criarSala(
     socket,
     meuId,
@@ -64,6 +65,7 @@ btnCriarSala.addEventListener("click", () => {
   );
 });
 btnEntrarSala.addEventListener("click", () => {
+  somTap()
   entrarSala(
     socket,
     inputNomeOponente,
@@ -112,6 +114,7 @@ socket.on("player", (play) => {
 });
 
 botaoConfirmaNome.addEventListener("click", () => {
+  somTap()
   if (usuariosConectados.length < 2) {
     validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta);
   } else {
@@ -154,6 +157,7 @@ BotaoStart.addEventListener("click", () => {
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
 socket.on("jogada", (jg, tab, vencedor) => {
+  somTap()
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
@@ -197,6 +201,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
+  somTap()
   limpaReiniciarJogo(
     listaJogadores,
     btnCriarSala,
@@ -226,4 +231,11 @@ function clique(ev) {
   );
 
   socket.emit("jogada", jogadaDaVez, meuId.id);
+}
+
+
+function somTap() {
+  let som = document.getElementById('somTap');
+  som.play();
+  console.log('deu certo')
 }

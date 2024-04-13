@@ -6,6 +6,7 @@ export default function iniciaJogo(spanTabuleiro, clique, BotaoStart, ContainerM
   });
   BotaoStart.style.display = "none";
   ContainerMsgVencedor.style.display = "flex";
+  somStart()
 
 
   socket.emit("jogador", "autorizado", meuId.id);
@@ -14,4 +15,10 @@ export default function iniciaJogo(spanTabuleiro, clique, BotaoStart, ContainerM
   alerta.textContent = ``;
   socket.emit("player", inputSeuNome.value, meuId.id);
   botaoConfirmaNome.style.display = "none";
+}
+
+function somStart() {
+  let som = document.getElementById('somStart');
+  som.play();
+  console.log('deu certo')
 }
