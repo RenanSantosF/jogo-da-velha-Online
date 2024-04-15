@@ -52,7 +52,6 @@ let listaJogadores = {
 };
 
 btnCriarSala.addEventListener("click", () => {
-  somTap()
   criarSala(
     socket,
     meuId,
@@ -61,11 +60,11 @@ btnCriarSala.addEventListener("click", () => {
     inputEntrarSala,
     inputSeuNome,
     inputNomeOponente,
-    BotaoStart
+    BotaoStart,
+    alerta
   );
 });
 btnEntrarSala.addEventListener("click", () => {
-  somTap()
   entrarSala(
     socket,
     inputNomeOponente,
@@ -114,9 +113,8 @@ socket.on("player", (play) => {
 });
 
 botaoConfirmaNome.addEventListener("click", () => {
-  somTap()
   if (usuariosConectados.length < 2) {
-    validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta);
+    validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta, nomeOponente);
   } else {
     socket.emit("player", inputSeuNome.value, meuId.id);
     botaoConfirmaNome.style.display = "none";
@@ -138,7 +136,7 @@ socket.on("jogador", (inf) => {
 });
 
 inputSeuNome.addEventListener("keyup", () => {
-  validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta);
+  validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta, nomeOponente);
 });
 
 // Clique no botão Iniciar jogo
@@ -157,7 +155,6 @@ BotaoStart.addEventListener("click", () => {
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
 socket.on("jogada", (jg, tab, vencedor) => {
-  somTap()
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
@@ -201,7 +198,6 @@ socket.on("jogada", (jg, tab, vencedor) => {
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
-  somTap()
   limpaReiniciarJogo(
     listaJogadores,
     btnCriarSala,
@@ -231,11 +227,4 @@ function clique(ev) {
   );
 
   socket.emit("jogada", jogadaDaVez, meuId.id);
-}
-
-
-function somTap() {
-  let som = document.getElementById('somTap');
-  som.play();
-  console.log('deu certo')
 }

@@ -32,21 +32,28 @@ io.on("connection", (socket) => {
 
   // Escuta e cria a sala e adiciona o usuário
   socket.on("criarSala", (salaCriada, meuId) => {
-    socket.join(salaCriada);
-    minhaSala = salaCriada;
-    usuariosConectados.push(userId);
 
     if (!usuariosPorSala[salaCriada]) {
+
+      socket.join(salaCriada);
+      usuariosConectados.push(userId);
       usuariosPorSala[salaCriada] = [];
+      usuariosPorSala[salaCriada].push(userId);
+
+      Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+        if (usuarios.includes(meuId)) {
+          salaUsuario = Number(sala);
+        }
+      });
+      socket.emit("salaCheia", "naoexiste");
+    }
+    else {
+      socket.emit("salaCheia", "existente");
     }
 
-    usuariosPorSala[salaCriada].push(userId);
+    
 
-    Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
-      if (usuarios.includes(meuId)) {
-        salaUsuario = Number(sala);
-      }
-    });
+
   });
 
   // Escuta e direciona o cliente à sala existente
@@ -177,9 +184,20 @@ io.on("connection", (socket) => {
     });
   });
 
+
+
+
   // Evento de desconexão de um cliente
   socket.on("disconnect", () => {
-    // console.log("Um cliente se desconectou");
+
+    // Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
+    //   if (usuarios.includes(userId)) {
+    //     if (usuariosPorSala[sala][0].length == 0) {
+    //       console.log(sala)
+    //     }
+    //   }
+    // });
+
 
     // Remove do array o ID do usuário desconectado
     usuariosConectados = usuariosConectados.filter(
