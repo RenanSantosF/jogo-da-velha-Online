@@ -190,18 +190,14 @@ io.on("connection", (socket) => {
   // Evento de desconexão de um cliente
   socket.on("disconnect", () => {
 
-    // Object.entries(usuariosPorSala).forEach(([sala, usuarios]) => {
-    //   if (usuarios.includes(userId)) {
-    //     if (usuariosPorSala[sala][0].length == 0) {
-    //       console.log(sala)
-    //     }
-    //   }
-    // });
+    
 
 
     // Remove do array o ID do usuário desconectado
-    usuariosConectados = usuariosConectados.filter(
-      (usuario) => usuario !== userId
+    usuariosConectados = usuariosConectados.filter((usuario) => {
+      usuario !== userId
+    }
+
     );
 
     // Envia para todos os clientes a lista de usuários conectados

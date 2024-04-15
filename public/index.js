@@ -52,6 +52,7 @@ let listaJogadores = {
 };
 
 btnCriarSala.addEventListener("click", () => {
+  somClique("somTap")
   criarSala(
     socket,
     meuId,
@@ -65,6 +66,7 @@ btnCriarSala.addEventListener("click", () => {
   );
 });
 btnEntrarSala.addEventListener("click", () => {
+  somClique("somTap")
   entrarSala(
     socket,
     inputNomeOponente,
@@ -113,13 +115,24 @@ socket.on("player", (play) => {
 });
 
 botaoConfirmaNome.addEventListener("click", () => {
-  if (usuariosConectados.length < 2) {
-    validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta, nomeOponente);
-  } else {
-    socket.emit("player", inputSeuNome.value, meuId.id);
+  somClique("somTap")
+  if (inputSeuNome.value == nomeOponente) {
     botaoConfirmaNome.style.display = "none";
-    inputSeuNome.setAttribute("disabled", "disable");
+    alerta.textContent = `Insira um nome diferente de seu oponente!`;
+    inputSeuNome.value = ""
+    setTimeout (() => {
+      alerta.textContent = ``
+    }, 5 * 1000)
+  } else {
+    if (usuariosConectados.length < 2) {
+      validaNome(inputSeuNome, botaoConfirmaNome, usuariosConectados, alerta, nomeOponente);
+    } else {
+      socket.emit("player", inputSeuNome.value, meuId.id);
+      botaoConfirmaNome.style.display = "none";
+      inputSeuNome.setAttribute("disabled", "disable");
+    }
   }
+
 });
 
 // Verifica autorização para iniciar o jogo
@@ -155,10 +168,10 @@ BotaoStart.addEventListener("click", () => {
 // Recebe situação atual do tabuleiro
 let vencedorPartida = "";
 socket.on("jogada", (jg, tab, vencedor) => {
+  somClique("somJogada")
   vencedorPartida = vencedor;
   jogadaDaVez = jg;
   statusContainerTabuleiro = tab;
-  console.log(jogadaDaVez)
   ganhador(
     ContainerMsgVencedor,
     vencedorPartida,
@@ -198,6 +211,7 @@ socket.on("jogada", (jg, tab, vencedor) => {
 });
 
 BotaoNovoJogo.addEventListener("click", () => {
+  somClique("somTap")
   limpaReiniciarJogo(
     listaJogadores,
     btnCriarSala,
@@ -227,4 +241,10 @@ function clique(ev) {
   );
 
   socket.emit("jogada", jogadaDaVez, meuId.id);
+}
+
+
+function somClique(idSom) {
+  let som = document.getElementById(`${idSom}`);
+  som.play();
 }

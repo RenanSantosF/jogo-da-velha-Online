@@ -11,7 +11,6 @@ export default function criarSala(socket, meuId, btnCriarSala, btnEntrarSala, in
         alerta.textContent = ""
       }, 5 * 1000)
     } else if (situacao === "naoexiste") {
-      console.log(situacao)
       btnCriarSala.textContent = `CONECTADO - SALA ${sala}`;
       document.getElementById("btnCriarSala").disabled = true;
       btnCriarSala.style.backgroundColor = '#777777'

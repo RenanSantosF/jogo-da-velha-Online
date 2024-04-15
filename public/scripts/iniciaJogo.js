@@ -20,5 +20,4 @@ export default function iniciaJogo(spanTabuleiro, clique, BotaoStart, ContainerM
 function somStart() {
   let som = document.getElementById('somStart');
   som.play();
-  console.log('deu certo')
 }
